@@ -1,0 +1,17 @@
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*/*/*/*/__pycache__/
+
+# checkpoint files
+output/
+
+train_logs/
+test_logs/
+.vscode/
+
+*.pyc
+*.sh
+*.jpg
+*.png

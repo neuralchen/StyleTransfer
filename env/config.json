@@ -1,0 +1,16 @@
+{
+    "path":{
+        "trainLogRoot":"./train_logs",
+        "testLogRoot":"./test_logs",
+        "systemLog":"./system/system_log.log",
+        "datasetPath":{
+            "Place365_big":"D:\\Downloads\\data_large",
+            "WikiArt":"D:\\F_Disk\\data_set\\Art_Data\\data_art"
+        },
+        "trainConfigPath":"./train_configs",
+        "trainScriptsPath":"./train_scripts",
+        "testScriptsPath":"./test_scripts",
+        "remoteNodeInfo":"./nodesInfo/nodes.json",
+        "configJsonName":"model_config.json"
+    }
+}
