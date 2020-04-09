@@ -56,7 +56,8 @@ class Generator(nn.Module):
             nn.ReLU(),
             nn.ReflectionPad2d(3),
             nn.Conv2d(in_channels = 3 , out_channels = 3, kernel_size= 7),
-            nn.Tanh()
+            # nn.Tanh()
+            nn.Sigmoid()
         )
         self.__weights_init__()
 
@@ -71,4 +72,5 @@ class Generator(nn.Module):
             return feature
         h = self.resblocks(feature)
         h = self.decoder(h)
+        h = h * 2 -1
         return h,feature

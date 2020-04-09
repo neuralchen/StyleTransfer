@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 3:29:36 pm
+# Last Modified:  Thursday, 9th April 2020 11:07:58 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -235,11 +235,12 @@ class Trainer(object):
             # Sample images
             if (step + 1) % sample_freq == 0:
                 print('Sample images {}_fake.jpg'.format(step + 1))
-                fake_images,_ = Gen(content_images)
-                saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data)],3)
-                saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
-                wocao        = torch.cat([saved_image1,saved_image2],2)
-                save_image(wocao,
+                # fake_images,_ = Gen(content_images)
+                fake_images  = fake_image
+                saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
+                # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
+                # wocao        = torch.cat([saved_image1,saved_image2],2)
+                save_image(saved_image1,
                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
                 # print("Transfer validation images")
                 # num = 1

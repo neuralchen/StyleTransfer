@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 5th April 2020 5:39:58 pm
+# Last Modified:  Thursday, 9th April 2020 10:45:10 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -186,10 +186,10 @@ if __name__ == "__main__":
          'w/wheat_field', 'z/zen_garden', 'a/alcove', 'a/apartment-building/outdoor', 'a/artists_loft',
          'b/building_facade', 'c/cemetery']
 
-    # datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
-    contentdatapath = "D:\\迅雷下载\\data_large"
-    imsize          = 256
-    datasetloader   = getLoader(contentdatapath, categories_names, 256,16,'Content',8)
+    datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
+    # contentdatapath = "D:\\迅雷下载\\data_large"
+    imsize          = 768
+    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0)
     wocao           = iter(datasetloader)
     for i in range(30000):
         print("new batch")
