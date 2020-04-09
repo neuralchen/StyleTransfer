@@ -10,12 +10,12 @@ from components.DeConv   import DeConv
 # from  DeConv   import DeConv
 
 class Discriminator(nn.Module):
-    def __init__(self, chn=32, k_size=3):
+    def __init__(self, chn=32, k_size=5):
         super().__init__()
         padding_size = int((k_size -1)/2)
         slop         = 0.2
         self.block0 = nn.Sequential(
-            nn.Conv2d(in_channels = 3 , out_channels = chn*2, kernel_size= k_size, stride = 1, bias= False),
+            nn.Conv2d(in_channels = 3 , out_channels = chn*2, kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
             nn.LeakyReLU(slop)
         )

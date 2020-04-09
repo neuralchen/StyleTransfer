@@ -3,7 +3,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 10:18:38 am
+# Last Modified:  Thursday, 9th April 2020 11:26:23 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -20,7 +20,7 @@ def getParameters():
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=4)
     # training
-    parser.add_argument('--version', type=str, default='styleaware4')
+    parser.add_argument('--version', type=str, default='styleaware5')
     parser.add_argument('--experimentDescription', type=str, default="original style aware, resblock 9, add the init operators, moment=0")
     parser.add_argument('--trainYaml', type=str, default="train_styleaware.yaml")
     
