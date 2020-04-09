@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 12:31:26 pm
+# Last Modified:  Thursday, 9th April 2020 3:29:36 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -110,7 +110,7 @@ class Trainer(object):
         alpha         = 0.05
         real_labels = []
         fake_labels = []
-        label_size = [[batch_size,1,760,760],[batch_size,1,371,371],[batch_size,1,83,83],[batch_size,1,15,15],[batch_size,1,6,6]]
+        label_size = [[batch_size,1,378,378],[batch_size,1,180,180],[batch_size,1,36,36],[batch_size,1,4,4],[batch_size,1,1,1]]
         for i in range(5):
             real_label = torch.ones(label_size[i]).cuda()
             fake_label = torch.zeros(label_size[i]).cuda()
