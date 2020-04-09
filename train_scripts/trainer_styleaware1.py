@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 12:10:52 am
+# Last Modified:  Thursday, 9th April 2020 12:31:26 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -25,7 +25,8 @@ from    functools import partial
 from    data_tools.data_loader import getLoader
 from    components.Transform import Transform_block
 from    utilities.utilities import denorm
-
+from    components.Generator import Generator
+from    components.Discriminator import Discriminator
 
 class Trainer(object):
     def __init__(self, config, reporter):
@@ -73,7 +74,8 @@ class Trainer(object):
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
-
+        # Gen     = Generator(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
+        # Dis     = Discriminator(self.config["DConvDim"], self.config["DKS"])
         self.reporter.writeInfo("Generator structure:")
         self.reporter.writeModel(Gen.__str__())
         # print(self.Decoder)
@@ -144,33 +146,33 @@ class Trainer(object):
             # Compute loss with real images
             if discr_success < win_rate:
                 
-                real_out = Dis(style_images)
+                d_out = Dis(style_images)
                 d_loss_real = 0
                 real_acc = 0
                 for i in range(output_size):
-                    temp = C_loss(real_out[i],real_labels[i]).mean()
-                    real_acc +=  torch.gt(real_out[i],0).type(torch.float).mean()
+                    temp = C_loss(d_out[i],real_labels[i]).mean()
+                    real_acc +=  torch.gt(d_out[i],0).type(torch.float).mean()
                     temp *= prep_weights[i]
                     d_loss_real += temp
                 real_acc /= output_size_float
 
                 d_loss_photo = 0
-                photo_out = Dis(content_images)
+                d_out = Dis(content_images)
                 photo_acc = 0
                 for i in range(output_size):
-                    temp = C_loss(photo_out[i],fake_labels[i])
-                    photo_acc +=  torch.lt(photo_out[i],0).type(torch.float).mean()
+                    temp = C_loss(d_out[i],fake_labels[i])
+                    photo_acc +=  torch.lt(d_out[i],0).type(torch.float).mean()
                     temp *= prep_weights[i]
                     d_loss_photo += temp
                 photo_acc /= output_size_float 
 
                 fake_image,_ = Gen(content_images)
-                fake_out = Dis(fake_image.detach())
+                d_out = Dis(fake_image.detach())
                 d_loss_fake = 0
                 fake_acc = 0
                 for i in range(output_size):
-                    temp = C_loss(fake_out[i],fake_labels[i]).mean()
-                    fake_acc +=  torch.lt(fake_out[i],0).type(torch.float).mean()
+                    temp = C_loss(d_out[i],fake_labels[i]).mean()
+                    fake_acc +=  torch.lt(d_out[i],0).type(torch.float).mean()
                     temp *= prep_weights[i]
                     d_loss_fake += temp
                 fake_acc /= output_size_float
@@ -185,16 +187,16 @@ class Trainer(object):
             else:
                 # ================== Train G ================== #   
                 #      
-                g_fake_image,real_feature= Gen(content_images)
-                fake_feature            = Gen(g_fake_image, get_feature = True)
-                g_fake_out              = Dis(g_fake_image)
+                fake_image,real_feature = Gen(content_images)
+                fake_feature            = Gen(fake_image, get_feature = True)
+                d_out                   = Dis(fake_image)
                 g_feature_loss          = L1_loss(fake_feature,real_feature)
-                g_transform_loss        = MSE_loss(Transform(content_images), Transform(g_fake_image))
+                g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
                 g_loss_fake = 0
                 g_acc = 0
                 for i in range(output_size):
-                    temp = C_loss(g_fake_out[i],real_labels[i]).mean()
-                    g_acc +=  torch.gt(g_fake_out[i],0).type(torch.float).mean()
+                    temp = C_loss(d_out[i],real_labels[i]).mean()
+                    g_acc +=  torch.gt(d_out[i],0).type(torch.float).mean()
                     temp *= prep_weights[i]
                     g_loss_fake += temp
                 g_acc /= output_size_float

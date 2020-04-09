@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 8th April 2020 1:28:53 am
+# Last Modified:  Thursday, 9th April 2020 12:31:47 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -18,6 +18,8 @@ from    utilities.reporter import Reporter
 from    utilities.json_config import *
 from    utilities.yaml_config import getConfigYaml
 from    utilities.sshupload import fileUploaderClass
+# from    train_scripts.trainer_styleaware1 import Trainer
+from    torch.backends import cudnn
 
 def create_dirs(sys_state):
     # the base dir
@@ -48,6 +50,8 @@ def create_dirs(sys_state):
     sys_state["reporterPath"] = os.path.join(sys_state["projectRoot"],sys_state["version"]+"_report")
 
 def main(config):
+    # speed up the program
+    cudnn.benchmark = True
     ignoreKey = [
         "dataloader_workers","logRootPath",
         "projectRoot","projectSummary","projectCheckpoints",
@@ -221,6 +225,7 @@ def main(config):
         package     = __import__(moduleName, fromlist=True)
         trainerClass= getattr(package, 'Trainer')
         trainer     = trainerClass(sys_state,reporter)
+        # trainer  = Trainer(sys_state,reporter)
         trainer.train()
 
 if __name__ == '__main__':
