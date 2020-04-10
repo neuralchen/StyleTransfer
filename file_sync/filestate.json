@@ -1,0 +1,21 @@
+{
+    "main.py": 1586503657.6977077,
+    "parameters.py": 1586507633.848372,
+    "update_remote_project.py": 1586500173.1962554,
+    "components\\DeConv.py": 1586361573.2773502,
+    "components\\Discriminator.py": 1586446179.7677865,
+    "components\\Generator.py": 1586518702.9858487,
+    "components\\ResBlock.py": 1586358463.3046033,
+    "components\\Transform.py": 1586232538.2576735,
+    "data_tools\\data_loader.py": 1586502657.033142,
+    "data_tools\\test_data_loader.py": 1586497497.1462667,
+    "test_scripts\\tester_common.py": 1586497863.107358,
+    "train_scripts\\trainer_norm.py": 1586284391.963429,
+    "train_scripts\\trainer_styleaware.py": 1586237562.3906105,
+    "train_scripts\\trainer_styleaware1.py": 1586507714.1763248,
+    "utilities\\json_config.py": 1583061858.4680288,
+    "utilities\\reporter.py": 1582567500.4010406,
+    "utilities\\sshupload.py": 1583256067.113431,
+    "utilities\\utilities.py": 1586191346.7891545,
+    "utilities\\yaml_config.py": 1582878601.8303523
+}

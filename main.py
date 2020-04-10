@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 12:31:47 pm
+# Last Modified:  Friday, 10th April 2020 3:27:37 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -56,17 +56,21 @@ def main(config):
         "dataloader_workers","logRootPath",
         "projectRoot","projectSummary","projectCheckpoints",
         "projectSamples","projectScripts","reporterPath",
-        "useSpecifiedImg","dataset_path"
+        "useSpecifiedImg","dataset_path", "cuda"
     ]
     sys_state = {}
 
     sys_state["dataloader_workers"] = config.dataloader_workers
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(config.cuda)
+    if config.cuda >= 0:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(config.cuda)
+        
     # For fast training
 
     # read system environment path
     env_config = read_config('env/config.json')
     env_config = env_config["path"]
+
+    sys_state["cuda"]   = config.cuda
     
     # Train mode
     if config.mode == "train":
@@ -108,6 +112,7 @@ def main(config):
         sys_state["logRootPath"]    = env_config["trainLogRoot"]
         sys_state["version"]        = config.version
         sys_state["projectRoot"]    = os.path.join(sys_state["logRootPath"], sys_state["version"])
+        sys_state["checkpointStep"] = config.finetuneCheckpoint
 
         config_json                 = os.path.join(sys_state["projectRoot"], env_config["configJsonName"])
         train_config                = read_config(config_json)

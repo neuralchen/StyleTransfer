@@ -3,7 +3,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 11:26:23 pm
+# Last Modified:  Friday, 10th April 2020 4:33:53 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -16,7 +16,7 @@ def str2bool(v):
 def getParameters():
     parser = argparse.ArgumentParser()
     # general
-    parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
+    parser.add_argument('--mode', type=str, default="finetune", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=4)
     # training
@@ -25,7 +25,7 @@ def getParameters():
     parser.add_argument('--trainYaml', type=str, default="train_styleaware.yaml")
     
     # finetune
-    parser.add_argument('--finetuneCheckpoint', type=int, default=95)
+    parser.add_argument('--finetuneCheckpoint', type=int, default=126000)
 
     # test
     parser.add_argument('--testVersion', type=str, default='styleaware2')

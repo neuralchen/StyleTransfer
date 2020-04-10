@@ -51,11 +51,11 @@ class Generator(nn.Module):
             DeConv(in_channels = chn * 4 , out_channels = chn * 2 , kernel_size= k_size),
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
             nn.ReLU(),
-            DeConv(in_channels = chn * 2  , out_channels = 3, kernel_size= k_size),
-            nn.InstanceNorm2d(3, affine=True, momentum=0),
+            DeConv(in_channels = chn * 2  , out_channels = chn, kernel_size= k_size),
+            nn.InstanceNorm2d(chn, affine=True, momentum=0),
             nn.ReLU(),
             nn.ReflectionPad2d(3),
-            nn.Conv2d(in_channels = 3 , out_channels = 3, kernel_size= 7),
+            nn.Conv2d(in_channels = chn , out_channels = 3, kernel_size= 7),
             # nn.Tanh()
             nn.Sigmoid()
         )

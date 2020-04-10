@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 11:07:58 pm
+# Last Modified:  Friday, 10th April 2020 4:35:13 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -85,6 +85,14 @@ class Trainer(object):
         Transform = Transform_block().cuda()
         Gen     = Gen.cuda()
         Dis     = Dis.cuda()
+
+        if self.config["mode"] == "finetune":
+            model_path = os.path.join(self.config["projectCheckpoints"], "%d_Generator.pth"%self.config["checkpointStep"])
+            Gen.load_state_dict(torch.load(model_path))
+            print('loaded trained Generator model step {}...!'.format(self.config["checkpointStep"]))
+            model_path = os.path.join(self.config["projectCheckpoints"], "%d_Discriminator.pth"%self.config["checkpointStep"])
+            Dis.load_state_dict(torch.load(model_path))
+            print('loaded trained Discriminator model step {}...!'.format(self.config["checkpointStep"]))
         
         print("build the optimizer...")
         # Loss and optimizer
@@ -101,7 +109,7 @@ class Trainer(object):
 
         # Start with trained model
         if self.config["mode"] == "finetune":
-            start = self.config["finetuneCheckpoint"]
+            start = self.config["checkpointStep"]
         else:
             start = 0
 

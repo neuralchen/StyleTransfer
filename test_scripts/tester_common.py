@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 8th April 2020 1:31:43 am
+# Last Modified:  Friday, 10th April 2020 1:51:02 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -43,14 +43,16 @@ class Tester(object):
         # SpecifiedImages = None
         # if self.config["useSpecifiedImg"]:
         #     SpecifiedImages = self.config["specifiedTestImg"]
-        test_data = TestDataset(test_img,batch_size)
+        test_data = TestDataset(test_img,self.config["imCropSize"],batch_size)
         total     = len(test_data)
                             
         # models
         package = __import__(self.config["com_base"]+self.config["gScriptName"], fromlist=True)
         GClass  = getattr(package, 'Generator')
-        Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"]).cuda()
         
+        Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
+        if self.config["cuda"] >=0:
+            Gen = Gen.cuda()
         Gen.load_state_dict(torch.load(self.config["ckp_name"]))
         print('loaded trained models {}...!'.format(self.config["ckp_name"]))
         
@@ -59,11 +61,14 @@ class Tester(object):
         with torch.no_grad():
             for iii in tqdm(range(total//batch_size)):
                 content = test_data()
-                content = content.cuda()
+                if self.config["cuda"] >=0:
+                    content = content.cuda()
+                print(content.shape)
+                
                 res,_ = Gen(content)
                 print("Save test data")
                 save_image(denorm(res.data),
-                            os.path.join(save_dir, '{}_stylized.png'.format(iii + 1)),nrow=batch_size)#,nrow=self.batch_size)
+                            os.path.join(save_dir, '{}_step{}_stylized.png'.format(iii + 1,self.config["checkpointStep"])),nrow=batch_size)#,nrow=self.batch_size)
         elapsed = time.time() - start_time
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Elapsed [{}]".format(elapsed))

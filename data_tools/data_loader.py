@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 9th April 2020 10:45:10 pm
+# Last Modified:  Friday, 10th April 2020 3:10:42 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -21,13 +21,14 @@ from pathlib import Path
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
 
-    def __init__(self, image_dir, selectedClass, transform, subffix='jpg'):
+    def __init__(self, image_dir, selectedClass, transform, subffix='jpg', random_seed=1234):
         """Initialize and preprocess the CelebA dataset."""
         self.image_dir  = image_dir
         self.transform  = transform
         self.selectedClass = selectedClass
         self.subffix    = subffix
         self.dataset    = []
+        self.random_seed= random_seed
         self.preprocess()
         self.num_images = len(self.dataset)
 
@@ -36,6 +37,8 @@ class ArtDataset(data.Dataset):
         images = Path(self.image_dir).glob('%s/*.%s'%(self.selectedClass, self.subffix))
         for item in images:
             self.dataset.append(item)
+        random.seed(self.random_seed)
+        random.shuffle(self.dataset)
         # self.dataset = images
         print('Finished preprocessing the Art Works dataset, total image number: %d...'%len(self.dataset))
 
@@ -73,13 +76,14 @@ class ArtDataset(data.Dataset):
 class ContentDataset(data.Dataset):
     """Dataset class for the Content dataset."""
 
-    def __init__(self, image_dir, selectedClass, transform, subffix='jpg'):
+    def __init__(self, image_dir, selectedClass, transform, subffix='jpg', random_seed=1234):
         """Initialize and preprocess the Content dataset."""
         self.image_dir  = image_dir
         self.transform  = transform
         self.selectedClass = selectedClass
         self.subffix    = subffix
         self.dataset    = []
+        self.random_seed= random_seed
         self.preprocess()
         self.num_images = len(self.dataset)
 
@@ -95,6 +99,8 @@ class ContentDataset(data.Dataset):
             else:
                 print("%s dir does not exist!"%dir_item,end='\r')
         # self.dataset = images
+        random.seed(self.random_seed)
+        random.shuffle(self.dataset)
         print('Finished preprocessing the Content dataset, total image number: %d...'%len(self.dataset))
 
     def __getitem__(self, index):
