@@ -1,6 +1,6 @@
 {
     "main.py": 1586503657.6977077,
-    "parameters.py": 1586507633.848372,
+    "parameters.py": 1586578029.206568,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
@@ -17,5 +17,8 @@
     "utilities\\reporter.py": 1582567500.4010406,
     "utilities\\sshupload.py": 1583256067.113431,
     "utilities\\utilities.py": 1586191346.7891545,
-    "utilities\\yaml_config.py": 1582878601.8303523
+    "utilities\\yaml_config.py": 1582878601.8303523,
+    "components\\Discriminator_SingleScale.py": 1586539276.315741,
+    "components\\Discriminator_VGG.py": 1586536319.742742,
+    "train_scripts\\trainer_singlescale.py": 1586540916.220482
 }

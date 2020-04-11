@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 3:27:37 pm
+# Last Modified:  Saturday, 11th April 2020 12:29:11 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -140,7 +140,7 @@ def main(config):
         if not os.path.exists(sys_state["testSamples"]):
             os.makedirs(sys_state["testSamples"])
         
-        if config.useSpecifiedImg:  
+        if config.useSpecifiedImg:
             sys_state["useSpecifiedImg"]   = config.useSpecifiedImg       
         # Create dirs
         create_dirs(sys_state)

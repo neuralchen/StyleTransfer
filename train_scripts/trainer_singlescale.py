@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 11th April 2020 1:48:35 am
+# Last Modified:  Saturday, 11th April 2020 12:20:09 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -54,7 +54,8 @@ class Trainer(object):
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         workers     = self.config["dataloader_workers"]
-        n_d         = self.config["d_iter"]
+        dStep       = self.config["dStep"]
+        gStep       = self.config["gStep"]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -112,7 +113,7 @@ class Trainer(object):
             start = self.config["checkpointStep"]
         else:
             start = 0
-
+        total_step = total_step//(gStep+dStep)
         # win_rate      = 0.8
         # discr_success = 0.8
         # alpha         = 0.05
@@ -140,19 +141,20 @@ class Trainer(object):
         for step in range(start, total_step):
             Dis.train()
             Gen.train()
-            try:
-                content_images =next(content_iter)
-                style_images = next(style_iter)
-            except:
-                style_iter      = iter(style_loader)
-                content_iter    = iter(content_loader)
-                style_images = next(style_iter)
-                content_images = next(content_iter)
-            style_images    = style_images.cuda()
-            content_images  = content_images.cuda()
+            
             # ================== Train D ================== #
             # Compute loss with real images
-            if step%(n_d+1) != 0:
+            for _ in range(dStep):
+                try:
+                    content_images =next(content_iter)
+                    style_images = next(style_iter)
+                except:
+                    style_iter      = iter(style_loader)
+                    content_iter    = iter(content_loader)
+                    style_images = next(style_iter)
+                    content_images = next(content_iter)
+                style_images    = style_images.cuda()
+                content_images  = content_images.cuda()
                 
                 d_out = Dis(style_images)
                 d_loss_real = Hinge_loss(1 - d_out).mean()
@@ -169,9 +171,17 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-            else:
-                # ================== Train G ================== #   
-                #      
+                
+
+            # ================== Train G ================== #
+            for _ in range(gStep):
+                try:
+                    content_images =next(content_iter)
+                except:
+                    content_iter    = iter(content_loader)
+                    content_images  = next(content_iter)
+                content_images  = content_images.cuda()
+                
                 fake_image, real_feature= Gen(content_images)
                 fake_feature            = Gen(fake_image, get_feature = True)
                 fake_out                = Dis(fake_image)

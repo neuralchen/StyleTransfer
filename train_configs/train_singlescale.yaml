@@ -10,7 +10,6 @@ threads: -1
 totalStep: 1000000
 batchSize: 1
 max2Keep: 10
-d_iter: 1
 
 # Dataset
 imCropSize: 768
@@ -49,7 +48,7 @@ lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
 dStep: 1
-gStep: 1
+gStep: 2
 featureWeight: 100.0
 transformWeight: 100.0
 layersWeight: [1.0, 1.0, 1.0, 1.0, 1.0]
