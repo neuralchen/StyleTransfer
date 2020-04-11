@@ -57,7 +57,7 @@ class fileUploaderClass(object):
         self.__ssh__.close()
     
     def __putCallBack__(self,transferred,total):
-        print("current transferred %.1f percent"%(transferred/total*100))
+        print("current transferred %3.1f percent"%(transferred/total*100),end='\r')
     
     def sshScpGetmd5(self, file_path):
         self.__ssh__.connect(self.__ip__, self.__port__, self.__userName__, self.__passWd__)
