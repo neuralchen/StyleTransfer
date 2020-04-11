@@ -3,7 +3,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 4:33:53 pm
+# Last Modified:  Saturday, 11th April 2020 1:27:19 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -16,13 +16,13 @@ def str2bool(v):
 def getParameters():
     parser = argparse.ArgumentParser()
     # general
-    parser.add_argument('--mode', type=str, default="finetune", choices=['train', 'finetune','test','debug'])
+    parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=4)
     # training
-    parser.add_argument('--version', type=str, default='styleaware5')
-    parser.add_argument('--experimentDescription', type=str, default="original style aware, resblock 9, add the init operators, moment=0")
-    parser.add_argument('--trainYaml', type=str, default="train_styleaware.yaml")
+    parser.add_argument('--version', type=str, default='singlescale1')
+    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to a single scale one and replace loss with the hingle loss")
+    parser.add_argument('--trainYaml', type=str, default="train_singlescale.yaml")
     
     # finetune
     parser.add_argument('--finetuneCheckpoint', type=int, default=126000)
