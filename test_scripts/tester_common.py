@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 1:51:02 pm
+# Last Modified:  Sunday, 12th April 2020 12:50:54 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -62,9 +62,7 @@ class Tester(object):
             for iii in tqdm(range(total//batch_size)):
                 content = test_data()
                 if self.config["cuda"] >=0:
-                    content = content.cuda()
-                print(content.shape)
-                
+                    content = content.cuda()       
                 res,_ = Gen(content)
                 print("Save test data")
                 save_image(denorm(res.data),

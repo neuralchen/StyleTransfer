@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 7th April 2020 1:32:42 pm
+# Last Modified:  Sunday, 12th April 2020 1:16:09 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -153,8 +153,8 @@ class Trainer(object):
                     temp *= prep_weights[i]
                     d_loss_photo += temp
 
-                fake_image,_ = Gen(content_images.detach())
-                fake_out = Dis(fake_image)
+                fake_image,_ = Gen(content_images)
+                fake_out = Dis(fake_image.detach())
                 d_loss_fake = 0
                 for i in range(len(fake_out)):
                     # temp = torch.nn.ReLU()(one_labels[i] + fake_out[i]).mean()

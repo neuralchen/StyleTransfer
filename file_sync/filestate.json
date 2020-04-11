@@ -1,6 +1,6 @@
 {
     "main.py": 1586579351.7460713,
-    "parameters.py": 1586578881.545194,
+    "parameters.py": 1586626150.8534455,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
@@ -9,17 +9,19 @@
     "components\\Transform.py": 1586232538.2576735,
     "data_tools\\data_loader.py": 1586502657.033142,
     "data_tools\\test_data_loader.py": 1586497497.1462667,
-    "test_scripts\\tester_common.py": 1586497863.107358,
+    "test_scripts\\tester_common.py": 1586623854.4412913,
     "train_scripts\\trainer_norm.py": 1586284391.963429,
-    "train_scripts\\trainer_styleaware.py": 1586237562.3906105,
+    "train_scripts\\trainer_styleaware.py": 1586625369.1588995,
     "train_scripts\\trainer_styleaware1.py": 1586507714.1763248,
     "utilities\\json_config.py": 1583061858.4680288,
     "utilities\\reporter.py": 1582567500.4010406,
-    "utilities\\sshupload.py": 1583256067.113431,
+    "utilities\\sshupload.py": 1586589876.12246,
     "utilities\\utilities.py": 1586191346.7891545,
     "utilities\\yaml_config.py": 1582878601.8303523,
     "components\\Discriminator_SingleScale.py": 1586539276.315741,
     "components\\Discriminator_VGG.py": 1586536319.742742,
-    "train_scripts\\trainer_singlescale.py": 1586578809.0349324,
-    "components\\Discriminator_SingleScale1.py": 1586588553.1757278
+    "train_scripts\\trainer_singlescale.py": 1586625350.2963874,
+    "components\\Discriminator_SingleScale1.py": 1586588553.1757278,
+    "components\\Discriminator_MultiScale.py": 1586626060.418,
+    "train_scripts\\trainer_multiscale.py": 1586626311.4168353
 }

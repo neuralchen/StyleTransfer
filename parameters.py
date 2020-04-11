@@ -3,7 +3,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 11th April 2020 12:21:21 pm
+# Last Modified:  Sunday, 12th April 2020 1:29:10 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -20,9 +20,9 @@ def getParameters():
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=4)
     # training
-    parser.add_argument('--version', type=str, default='singlescale2')
-    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to a single scale one and replace loss with the hingle loss")
-    parser.add_argument('--trainYaml', type=str, default="train_singlescale.yaml")
+    parser.add_argument('--version', type=str, default='multiscale1')
+    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to a multiscale scale one and replace loss with the hingle loss")
+    parser.add_argument('--trainYaml', type=str, default="train_multiscale.yaml")
     
     # finetune
     parser.add_argument('--finetuneCheckpoint', type=int, default=126000)
