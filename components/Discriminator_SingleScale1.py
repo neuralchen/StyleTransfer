@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 11th April 2020 3:01:54 pm
+# Last Modified:  Sunday, 12th April 2020 1:56:48 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -30,45 +30,16 @@ class Discriminator(nn.Module):
         self.block0 = nn.Sequential(
             nn.Conv2d(in_channels = 3 , out_channels = chn*2, kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
-            nn.LeakyReLU(slop)
-        )
-        # self.aux_classfier0 = nn.Sequential(
-        #     nn.Conv2d(in_channels = chn * 2 , out_channels = 1 , kernel_size= 5),
-        # )
-
-        # self.block1 = nn.Sequential(
-        #     nn.Conv2d(in_channels = chn * 2 , out_channels = chn * 2 , kernel_size= k_size, stride = 2, bias= False),
-        #     nn.InstanceNorm2d(chn * 2 , affine=True, momentum=0),
-        #     nn.LeakyReLU(slop),
-        # )
-        # self.aux_classfier1 = nn.Sequential(
-        #     nn.Conv2d(in_channels = chn * 2 , out_channels = 1, kernel_size= 10),
-        # )
-
-        self.block2 = nn.Sequential(
+            nn.LeakyReLU(slop),
             nn.Conv2d(in_channels = chn * 2 , out_channels = chn * 4 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 4, affine=True, momentum=0),
             nn.LeakyReLU(slop),
             nn.Conv2d(in_channels = chn * 4 , out_channels = chn * 8 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
-            nn.LeakyReLU(slop)
-        )
-        # self.aux_classfier3 = nn.Sequential(
-        #     nn.Conv2d(in_channels = chn * 8 , out_channels = 1, kernel_size= 10),
-        # )
-
-        self.block4 = nn.Sequential(
-            # nn.Conv2d(in_channels = chn * 8 , out_channels = chn * 8 , kernel_size= k_size, stride = 2, bias= False),
-            # nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
-            # nn.LeakyReLU(slop),
+            nn.LeakyReLU(slop),
             nn.Conv2d(in_channels = chn * 8, out_channels = chn * 16 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 16 , affine=True, momentum=0),
-            nn.LeakyReLU(slop)
-        )
-        # self.aux_classfier5 = nn.Sequential(
-        #     nn.Conv2d(in_channels = chn * 16 , out_channels = 1, kernel_size= 6),
-        # )
-        self.block6 = nn.Sequential(
+            nn.LeakyReLU(slop),
             nn.Conv2d(in_channels = chn * 16 , out_channels = chn * 16 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 16, affine=True, momentum=0),
             nn.LeakyReLU(slop)

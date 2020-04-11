@@ -1,7 +1,7 @@
 # Related scripts
-trainScriptName: multiscale
+trainScriptName: SN
 gScriptName: Generator
-dScriptName: Discriminator_MultiScale
+dScriptName: Discriminator_SN
 
 # Device
 threads: -1
@@ -47,8 +47,8 @@ lrDecayStep: 100
 lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
-dStep: 1
-gStep: 3
+dStep: 3
+gStep: 1
 featureWeight: 100.0
 transformWeight: 100.0
 layersWeight: [1.0, 1.0, 1.0, 1.0, 1.0]
@@ -57,7 +57,7 @@ layersWeight: [1.0, 1.0, 1.0, 1.0, 1.0]
 GConvDim: 32
 DConvDim: 64
 GKS: 3
-DKS: 3
+DKS: 5
 resNum: 9
 GEncActName: leakyrelu
 GDecActName: relu
