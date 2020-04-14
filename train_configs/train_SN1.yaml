@@ -47,16 +47,16 @@ lrDecayStep: 100
 lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
-dStep: 5
+dStep: 2
 gStep: 1
 featureWeight: 100.0
 transformWeight: 100.0
 
 # Model hyper-parameters
 GConvDim: 32
-DConvDim: 64
+DConvDim: 32
 GKS: 3
-DKS: 5
+DKS: 3
 resNum: 9
 GEncActName: leakyrelu
 GDecActName: relu

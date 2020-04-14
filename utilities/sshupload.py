@@ -48,6 +48,12 @@ class fileUploaderClass(object):
     def sshScpGet(self, remoteFile, localFile, showProgress=False):
         self.__ssh__.connect(self.__ip__, self.__port__, self.__userName__, self.__passWd__)
         sftp = paramiko.SFTPClient.from_transport(self.__ssh__.get_transport())
+        try:
+            sftp.stat(remoteFile)
+            print("Remote file exists!")
+        except:
+            print("Remote file does not exist!")
+            return False
         sftp = self.__ssh__.open_sftp()
         if showProgress:
             sftp.get(remoteFile, localFile,callback=self.__putCallBack__)
@@ -55,6 +61,7 @@ class fileUploaderClass(object):
             sftp.get(remoteFile, localFile)
         sftp.close()
         self.__ssh__.close()
+        return True
     
     def __putCallBack__(self,transferred,total):
         print("current transferred %3.1f percent"%(transferred/total*100),end='\r')
@@ -112,3 +119,13 @@ class fileUploaderClass(object):
             print(path)
             sftp.remove(path)
             print("ssh delete:%s success"%(path))
+
+if __name__ == "__main__":
+    basePath    = "/home/gdp/CXH/StyleTransfer/train_logs/SN2/"
+    uploader    = fileUploaderClass("192.168.101.57","gdp","glass123456")
+    remote      = os.path.join(basePath,"model_config11.json").replace('\\','/')
+    local       = "./model_config.json"
+    uploader.sshScpGet(remote,local,True)
+
+
+

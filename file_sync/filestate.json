@@ -1,6 +1,6 @@
 {
     "main.py": 1586678094.3522294,
-    "parameters.py": 1586677558.8503878,
+    "parameters.py": 1586855442.2364445,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
@@ -8,8 +8,8 @@
     "components\\ResBlock.py": 1586358463.3046033,
     "components\\Transform.py": 1586232538.2576735,
     "data_tools\\data_loader.py": 1586502657.033142,
-    "data_tools\\test_data_loader.py": 1586497497.1462667,
-    "test_scripts\\tester_common.py": 1586623854.4412913,
+    "data_tools\\test_data_loader.py": 1586832328.4301188,
+    "test_scripts\\tester_common.py": 1586847660.4570098,
     "train_scripts\\trainer_norm.py": 1586284391.963429,
     "train_scripts\\trainer_styleaware.py": 1586625369.1588995,
     "train_scripts\\trainer_styleaware1.py": 1586507714.1763248,
@@ -29,5 +29,7 @@
     "components\\Discriminator_SN1.py": 1586704696.830444,
     "components\\Generator_tanh.py": 1586705293.8457153,
     "train_scripts\\trainer_SN1.py": 1586705042.8075113,
-    "components\\Discriminator_MultiScale1.py": 1586712687.1286616
+    "components\\Discriminator_MultiScale1.py": 1586712687.1286616,
+    "train_scripts\\trainer_GP.py": 1586849631.0524364,
+    "update.py": 1586855403.321
 }

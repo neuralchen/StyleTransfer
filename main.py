@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 12th April 2020 3:54:53 pm
+# Last Modified:  Tuesday, 14th April 2020 9:54:49 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -158,7 +158,11 @@ def main(config):
             print("ready to get the config.json...")
             remoteFile  = os.path.join(remotebase, env_config["configJsonName"]).replace('\\','/')
             localFile   = config_json
-            uploader.sshScpGet(remoteFile,localFile)
+            
+            state = uploader.sshScpGet(remoteFile,localFile)
+            if not state:
+                print("Get file %s failed! Program exists!"%remoteFile)
+                return
             print("success get the config file from server %s"%nodeinf['ip'])
 
         # Read model_config.json
@@ -178,14 +182,20 @@ def main(config):
         if sys_state["nodeName"]!="localhost":
             # Get scripts
             remoteFile  = os.path.join(remotebase, "scripts", sys_state["gScriptName"]+".py").replace('\\','/')
-            localFile   = os.path.join(sys_state["projectScripts"], sys_state["gScriptName"]+".py") 
-            uploader.sshScpGet(remoteFile, localFile)
+            localFile   = os.path.join(sys_state["projectScripts"], sys_state["gScriptName"]+".py")
+            state = uploader.sshScpGet(remoteFile, localFile)
+            if not state:
+                print("Get file %s failed! Program exists!"%remoteFile)
+                return
             print("Get the scripts:%s.py successfully"%sys_state["gScriptName"])
             # Get checkpoint of generator
             localFile   = os.path.join(sys_state["projectCheckpoints"], "%d_Generator.pth"%sys_state["checkpointStep"])
             if not os.path.exists(localFile):
                 remoteFile  = os.path.join(remotebase, "checkpoints", "%d_Generator.pth"%sys_state["checkpointStep"]).replace('\\','/')
-                uploader.sshScpGet(remoteFile, localFile, True)
+                state = uploader.sshScpGet(remoteFile, localFile, True)
+                if not state:
+                    print("Get file %s failed! Program exists!"%remoteFile)
+                    return
                 print("Get the %s file successfully"%("%d_Generator.pth"%sys_state["checkpointStep"]))
             else:
                 print("%s file exists"%("%d_Generator.pth"%sys_state["checkpointStep"]))
