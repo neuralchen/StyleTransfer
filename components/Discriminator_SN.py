@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 12th April 2020 10:02:40 pm
+# Last Modified:  Wednesday, 15th April 2020 12:54:03 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -42,7 +42,7 @@ class Discriminator(nn.Module):
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),
             nn.LeakyReLU(slop)
         )
-        self.classfier = utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1 , kernel_size= 3))
+        self.classfier = utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1, kernel_size= 3))
         self.__weights_init__()
 
     def __weights_init__(self):

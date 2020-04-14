@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 2:29:32 pm
+# Last Modified:  Tuesday, 14th April 2020 10:02:31 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -15,9 +15,9 @@ import json
 from utilities.sshupload import fileUploaderClass
 
 scan_config={
+    "white_list":["py","yaml"],
     "ignore_dir":["test_logs","train_logs",".vscode"],
     "ignore_file":[".gitignore","LICENSE","README.md","*.jpg","*.png","*.JPG","*.JPEG","*.PNG","*.pyc"],
-
 }
 
 if __name__ == "__main__":
@@ -33,9 +33,18 @@ if __name__ == "__main__":
             with open(path,'r') as cf:
                 nodelocaltionstr = cf.read()
                 last_state = json.loads(nodelocaltionstr)
-    all_py = []           
-    files = Path('.').glob('*.py') # */
-    for item in files:
+    all_files = []
+    # scan files
+    for item in scan_config["white_list"]:
+        files = Path('.').glob('*.%s'%item) # ./*
+        for one_file in files:
+            all_files.append(one_file)
+        files = Path('.').glob('*/*.%s'%item) # ./*/*
+        for one_file in files:
+            all_files.append(one_file)
+
+    # check updated files
+    for item in all_files:
         temp = item.stat().st_mtime
         if item._str in last_state:
             last_mtime = last_state[item._str]
@@ -45,17 +54,18 @@ if __name__ == "__main__":
         else:
             changed_files.append(item._str)
             last_state[item._str] = temp
-    files = Path('.').glob('*/*.py') # */
-    for item in files:
-        temp = item.stat().st_mtime
-        if item._str in last_state:
-            last_mtime = last_state[item._str]
-            if last_mtime != temp:
-                changed_files.append(item._str)
-                last_state[item._str] = temp
-        else:
-            changed_files.append(item._str)
-            last_state[item._str] = temp
+            
+    # files = Path('.').glob('*/*.py') # */
+    # for item in files:
+    #     temp = item.stat().st_mtime
+    #     if item._str in last_state:
+    #         last_mtime = last_state[item._str]
+    #         if last_mtime != temp:
+    #             changed_files.append(item._str)
+    #             last_state[item._str] = temp
+    #     else:
+    #         changed_files.append(item._str)
+    #         last_state[item._str] = temp
     
     with open(path, 'w') as cf:
         configjson  = json.dumps(last_state, indent=4)

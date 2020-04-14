@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 3:10:42 pm
+# Last Modified:  Wednesday, 15th April 2020 1:02:41 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -134,7 +134,8 @@ class ContentDataset(data.Dataset):
         """Return the number of images."""
         return self.num_images
 
-def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_name='Style', num_workers=8, colorJitterEnable=False):
+def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_name='Style', num_workers=8, colorJitterEnable=True, 
+                                    colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
     """Build and return a data loader."""
     transforms = []
     transforms.append(T.RandomCrop(crop_size))
@@ -142,9 +143,15 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
     transforms.append(T.RandomVerticalFlip())
     # colorBrightness = 0.01
 
-    # if colorJitterEnable:
-    #     transforms.append(T.ColorJitter(brightness=colorBrightness,\
-    #                         contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
+    if colorJitterEnable:
+        if colorConfig is not None:
+            print("Enable color jitter!")
+            colorBrightness = colorConfig["brightness"]
+            colorContrast   = colorConfig["contrast"]
+            colorSaturation = colorConfig["saturation"]
+            colorHue        = (-colorConfig["hue"],colorConfig["hue"])
+            transforms.append(T.ColorJitter(brightness=colorBrightness,\
+                                contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
     # transform.append(T.Resize(image_size,interpolation=PIL.Image.BICUBIC))
     transforms.append(T.ToTensor())
     transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
@@ -157,7 +164,7 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
     # elif dataset.lower() == 'Content':
     #     dataset = CelebA(image_dir, attr_path, selected_attrs, 
     #         transform, mode,batch_size,image_size,toPatch,microPatchSize)
-    data_loader = data.DataLoader(dataset=dataset,batch_size=batch_size,drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
+    data_loader = data.DataLoader(dataset=dataset,batch_size=batch_size,drop_last=True,shuffle=False,num_workers=num_workers,pin_memory=True)
     return data_loader
 
 def denorm(x):
@@ -195,12 +202,13 @@ if __name__ == "__main__":
     datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
     # contentdatapath = "D:\\迅雷下载\\data_large"
     imsize          = 768
-    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0)
+    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
     wocao           = iter(datasetloader)
-    for i in range(30000):
+    for i in range(10):
         print("new batch")
-        image       = next(wocao)
-        # save_image(denorm(image), "./wocao/%d-content.jpg"%i, nrow=4, padding=1)
+        image      = next(wocao)
+        # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
+        save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
     pass
     # import cv2
     # import os

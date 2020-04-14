@@ -1,5 +1,5 @@
 {
-    "main.py": 1586678094.3522294,
+    "main.py": 1586872489.173803,
     "parameters.py": 1586855442.2364445,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
@@ -15,7 +15,7 @@
     "train_scripts\\trainer_styleaware1.py": 1586507714.1763248,
     "utilities\\json_config.py": 1583061858.4680288,
     "utilities\\reporter.py": 1582567500.4010406,
-    "utilities\\sshupload.py": 1586589876.12246,
+    "utilities\\sshupload.py": 1586872501.4023125,
     "utilities\\utilities.py": 1586191346.7891545,
     "utilities\\yaml_config.py": 1582878601.8303523,
     "components\\Discriminator_SingleScale.py": 1586539276.315741,
@@ -31,5 +31,10 @@
     "train_scripts\\trainer_SN1.py": 1586705042.8075113,
     "components\\Discriminator_MultiScale1.py": 1586712687.1286616,
     "train_scripts\\trainer_GP.py": 1586849631.0524364,
-    "update.py": 1586855403.321
+    "update.py": 1586872951.6868384,
+    "train_configs\\train_multiscale.yaml": 1586712890.6856644,
+    "train_configs\\train_singlescale.yaml": 1586578834.5137618,
+    "train_configs\\train_SN.yaml": 1586628192.3729146,
+    "train_configs\\train_SN1.yaml": 1586855357.0741663,
+    "train_configs\\train_styleaware.yaml": 1586361234.3099709
 }
