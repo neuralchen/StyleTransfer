@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: Discriminator_SN.py
+# File: Discriminator_SN1.py
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 12th April 2020 10:02:40 pm
+# Last Modified:  Sunday, 12th April 2020 11:18:16 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -27,18 +27,18 @@ class Discriminator(nn.Module):
         slop         = 0.02
         self.block = nn.Sequential(
             utils.spectral_norm(nn.Conv2d(in_channels= 3,
-                            out_channels= chn*2, kernel_size= k_size, stride= 2, bias= False)),
+                            out_channels= chn, kernel_size= k_size, stride= 2, bias= False)),
+            nn.LeakyReLU(slop),
+            utils.spectral_norm(nn.Conv2d(in_channels= chn,
+                            out_channels = chn*2, kernel_size= k_size, stride= 2, bias= False)),
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*2,
                             out_channels = chn*4, kernel_size= k_size, stride= 2, bias= False)),
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*4,
-                            out_channels = chn*8, kernel_size= k_size, stride= 2, bias= False)),
+                            out_channels= chn*8, kernel_size= k_size, stride= 2, bias= False)),
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),
-            nn.LeakyReLU(slop),
-            utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),
             nn.LeakyReLU(slop)
         )

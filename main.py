@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 11th April 2020 12:29:11 pm
+# Last Modified:  Sunday, 12th April 2020 3:54:53 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -112,7 +112,7 @@ def main(config):
         sys_state["logRootPath"]    = env_config["trainLogRoot"]
         sys_state["version"]        = config.version
         sys_state["projectRoot"]    = os.path.join(sys_state["logRootPath"], sys_state["version"])
-        sys_state["checkpointStep"] = config.finetuneCheckpoint
+        sys_state["checkpointStep"] = config.checkpoint
 
         config_json                 = os.path.join(sys_state["projectRoot"], env_config["configJsonName"])
         train_config                = read_config(config_json)
@@ -125,15 +125,16 @@ def main(config):
         sys_state["mode"]           = config.mode
         create_dirs(sys_state)
         reporter = Reporter(sys_state["reporterPath"])
+        sys_state["com_base"]       = "train_logs.%s.scripts."%sys_state["version"]
         
         
     elif config.mode == "test":
-        sys_state["version"]        = config.testVersion
+        sys_state["version"]        = config.version
         sys_state["logRootPath"]    = env_config["trainLogRoot"]
         sys_state["nodeName"]       = config.nodeName
         sys_state["totalImg"]       = config.totalImg
         sys_state["useSpecifiedImg"]= config.useSpecifiedImg
-        sys_state["checkpointStep"] = config.testCheckpointStep
+        sys_state["checkpointStep"] = config.checkpoint
         sys_state["testImgRoot"]    = config.testImgRoot
 
         sys_state["testSamples"]    = os.path.join(env_config["testLogRoot"], sys_state["version"] , "samples")
@@ -217,6 +218,8 @@ def main(config):
 
         # display the training information
         moduleName  = "train_scripts.trainer_" + sys_state["trainScriptName"]
+        if config.mode == "finetune":
+            moduleName  = sys_state["com_base"] + "trainer_" + sys_state["trainScriptName"]
         print("Start to run training script: {}".format(moduleName))
         print("Traning version: %s"%sys_state["version"])
         print("Training Script Name: %s"%sys_state["trainScriptName"])

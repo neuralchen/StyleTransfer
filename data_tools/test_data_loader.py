@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 10th April 2020 1:44:31 pm
+# Last Modified:  Tuesday, 14th April 2020 10:45:27 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -57,8 +57,8 @@ class TestDataset(data.Dataset):
         for i in range(self.pointer, end):
             filename = self.dataset[i]
             image = Image.open(filename)
-            alpha = self.crop_size / float(min(image.size))
-            image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+            # alpha = self.crop_size / float(min(image.size))
+            # image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
             if (i-self.pointer) == 0:
                 res   = self.transforms(image).unsqueeze(0)
             else:

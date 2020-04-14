@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 12th April 2020 2:02:18 am
+# Last Modified:  Sunday, 12th April 2020 11:21:02 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -69,10 +69,17 @@ class Trainer(object):
         
         print("build models...")
 
-        package  = __import__("components."+self.config["gScriptName"], fromlist=True)
-        GClass   = getattr(package, 'Generator')
-        package  = __import__("components."+self.config["dScriptName"], fromlist=True)
-        DClass   = getattr(package, 'Discriminator')
+        if self.config["mode"] == "train":
+            package  = __import__("components."+self.config["gScriptName"], fromlist=True)
+            GClass   = getattr(package, 'Generator')
+            package  = __import__("components."+self.config["dScriptName"], fromlist=True)
+            DClass   = getattr(package, 'Discriminator')
+        elif self.config["mode"] == "finetune":
+            print("finetune load scripts from %s"%self.config["com_base"])
+            package = __import__(self.config["com_base"]+self.config["gScriptName"], fromlist=True)
+            GClass  = getattr(package, 'Generator')
+            package  = __import__(self.config["com_base"]+self.config["dScriptName"], fromlist=True)
+            DClass   = getattr(package, 'Discriminator')
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])

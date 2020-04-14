@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: train_styleaware.py
+# File: train_SN1.py
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 12th April 2020 3:56:46 pm
+# Last Modified:  Sunday, 12th April 2020 11:24:02 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -50,7 +50,6 @@ class Trainer(object):
         beta2       = self.config["beta2"]
         lrDecayStep = self.config["lrDecayStep"]
         batch_size  = self.config["batchSize"]
-        prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         workers     = self.config["dataloader_workers"]
@@ -68,12 +67,14 @@ class Trainer(object):
                             self.config["imCropSize"],batch_size,"Style",workers)
         
         print("build models...")
+
         if self.config["mode"] == "train":
             package  = __import__("components."+self.config["gScriptName"], fromlist=True)
             GClass   = getattr(package, 'Generator')
             package  = __import__("components."+self.config["dScriptName"], fromlist=True)
             DClass   = getattr(package, 'Discriminator')
         elif self.config["mode"] == "finetune":
+            print("finetune load scripts from %s"%self.config["com_base"])
             package = __import__(self.config["com_base"]+self.config["gScriptName"], fromlist=True)
             GClass  = getattr(package, 'Generator')
             package  = __import__(self.config["com_base"]+self.config["dScriptName"], fromlist=True)
@@ -81,7 +82,6 @@ class Trainer(object):
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
-
         self.reporter.writeInfo("Generator structure:")
         self.reporter.writeModel(Gen.__str__())
         # print(self.Decoder)
@@ -91,6 +91,7 @@ class Trainer(object):
         Transform = Transform_block().cuda()
         Gen     = Gen.cuda()
         Dis     = Dis.cuda()
+
 
         if self.config["mode"] == "finetune":
             model_path = os.path.join(self.config["projectCheckpoints"], "%d_Generator.pth"%self.config["checkpointStep"])
@@ -107,6 +108,7 @@ class Trainer(object):
 
         d_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, 
                                     Dis.parameters()), lr_base, [beta1, beta2])
+
         L1_loss = torch.nn.L1Loss()
         MSE_loss= torch.nn.MSELoss()
         # C_loss  = torch.nn.BCEWithLogitsLoss()
@@ -119,21 +121,6 @@ class Trainer(object):
         else:
             start = 0
         total_step = total_step//(gStep+dStep)
-        # win_rate      = 0.8
-        # discr_success = 0.8
-        # alpha         = 0.05
-        # real_labels = []
-        # fake_labels = []
-        # label_size = [[batch_size,1,378,378],[batch_size,1,180,180],[batch_size,1,36,36],[batch_size,1,4,4],[batch_size,1,1,1]]
-        # for i in range(5):
-        #     real_label = torch.ones(label_size[i]).cuda()
-        #     fake_label = torch.zeros(label_size[i]).cuda()
-        #     # threshold = torch.zeros(size[i], device=self.device)
-        #     real_labels.append(real_label)
-        #     fake_labels.append(fake_label)
-        
-        # output_size = len(label_size)
-        # output_size_float = float(output_size)
         
         # Data iterator
         print("prepare the dataloaders...")
@@ -198,7 +185,6 @@ class Trainer(object):
                 g_optimizer.zero_grad()
                 g_loss_fake.backward()
                 g_optimizer.step()
-            
 
             # Print out log info
             if (step + 1) % log_frep == 0:
@@ -219,13 +205,14 @@ class Trainer(object):
             # Sample images
             if (step + 1) % sample_freq == 0:
                 print('Sample images {}_fake.jpg'.format(step + 1))
-                # fake_images,_ = Gen(content_images)
-                fake_images  = fake_image
-                saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
-                # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
-                # wocao        = torch.cat([saved_image1,saved_image2],2)
-                save_image(saved_image1,
-                           os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
+                Gen.eval()
+                with torch.no_grad():
+                    fake_images,_ = Gen(content_images)
+                    saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
+                    # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
+                    # wocao        = torch.cat([saved_image1,saved_image2],2)
+                    save_image(saved_image1,
+                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:

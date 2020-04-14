@@ -1,6 +1,6 @@
 {
-    "main.py": 1586579351.7460713,
-    "parameters.py": 1586626150.8534455,
+    "main.py": 1586678094.3522294,
+    "parameters.py": 1586677558.8503878,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
@@ -20,8 +20,14 @@
     "utilities\\yaml_config.py": 1582878601.8303523,
     "components\\Discriminator_SingleScale.py": 1586539276.315741,
     "components\\Discriminator_VGG.py": 1586536319.742742,
-    "train_scripts\\trainer_singlescale.py": 1586625350.2963874,
-    "components\\Discriminator_SingleScale1.py": 1586588553.1757278,
-    "components\\Discriminator_MultiScale.py": 1586626060.418,
-    "train_scripts\\trainer_multiscale.py": 1586627327.4786701
+    "train_scripts\\trainer_singlescale.py": 1586678206.6396773,
+    "components\\Discriminator_SingleScale1.py": 1586711944.1873765,
+    "components\\Discriminator_MultiScale.py": 1586712726.2831612,
+    "train_scripts\\trainer_multiscale.py": 1586712827.158226,
+    "components\\Discriminator_SN.py": 1586700161.2362287,
+    "train_scripts\\trainer_SN.py": 1586704863.2669923,
+    "components\\Discriminator_SN1.py": 1586704696.830444,
+    "components\\Generator_tanh.py": 1586705293.8457153,
+    "train_scripts\\trainer_SN1.py": 1586705042.8075113,
+    "components\\Discriminator_MultiScale1.py": 1586712687.1286616
 }

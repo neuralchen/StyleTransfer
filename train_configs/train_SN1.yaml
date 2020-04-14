@@ -1,7 +1,7 @@
 # Related scripts
-trainScriptName: multiscale
+trainScriptName: SN1
 gScriptName: Generator_tanh
-dScriptName: Discriminator_MultiScale1
+dScriptName: Discriminator_SN1
 
 # Device
 threads: -1
@@ -47,17 +47,16 @@ lrDecayStep: 100
 lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
-dStep: 1
+dStep: 5
 gStep: 1
 featureWeight: 100.0
 transformWeight: 100.0
-layersWeight: [1.0, 1.0, 1.0, 1.0, 1.0]
 
 # Model hyper-parameters
 GConvDim: 32
-DConvDim: 32
+DConvDim: 64
 GKS: 3
-DKS: 3
+DKS: 5
 resNum: 9
 GEncActName: leakyrelu
 GDecActName: relu

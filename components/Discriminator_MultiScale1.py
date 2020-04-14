@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: Discriminator_SingleScale.py
+# File: Discriminator_MultiScale1.py
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 13th April 2020 1:19:03 am
+# Last Modified:  Monday, 13th April 2020 1:30:27 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -31,17 +31,17 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels = 3 , out_channels = chn, kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn, affine=True, momentum=0),
             nn.LeakyReLU(slop),
-            nn.Conv2d(in_channels = chn, out_channels = chn * 2 , kernel_size= k_size, stride = 2, bias= False),
+            nn.Conv2d(in_channels = chn , out_channels = chn * 2 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 2, affine=True, momentum=0),
             nn.LeakyReLU(slop),
             nn.Conv2d(in_channels = chn * 2 , out_channels = chn * 4 , kernel_size= k_size, stride = 2, bias= False),
             nn.InstanceNorm2d(chn * 4, affine=True, momentum=0),
             nn.LeakyReLU(slop),
-            nn.Conv2d(in_channels = chn * 4, out_channels = chn * 8 , kernel_size= k_size, stride = 2, bias= False),
-            nn.InstanceNorm2d(chn *8 , affine=True, momentum=0),
+            nn.Conv2d(in_channels = chn * 4 , out_channels = chn * 8 , kernel_size= k_size, stride = 2, bias= False),
+            nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
             nn.LeakyReLU(slop),
-            nn.Conv2d(in_channels = chn *8, out_channels = chn * 16 , kernel_size= k_size, stride = 2, bias= False),
-            nn.InstanceNorm2d(chn * 16, affine=True, momentum=0),
+            nn.Conv2d(in_channels = chn * 8, out_channels = chn * 16 , kernel_size= k_size, stride = 2, bias= False),
+            nn.InstanceNorm2d(chn * 16 , affine=True, momentum=0),
             nn.LeakyReLU(slop)
         )
         self.classfier = nn.Conv2d(in_channels = chn * 16, out_channels = 1 , kernel_size= 3)
@@ -56,14 +56,6 @@ class Discriminator(nn.Module):
     def forward(self, input):
         
         h       = self.block0(input)
-        # prep0   = self.aux_classfier0(h)
-        # h       = self.block1(h)
-        # prep1   = self.aux_classfier1(h)
-        h       = self.block2(h)
-        # prep3   = self.aux_classfier3(h)
-        h       = self.block4(h)
-        # prep5   = self.aux_classfier5(h)
-        h       = self.block6(h)
         out     = self.classfier(h)
         # out_prep = [prep0,prep1,prep3,prep5,out]
         return out
