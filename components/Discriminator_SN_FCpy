@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: Discriminator_SN1.py
+# File: Discriminator_SN_FC.py
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
@@ -39,11 +39,14 @@ class Discriminator(nn.Module):
                             out_channels= chn*8, kernel_size= k_size, stride= 2, bias= False)),# 1/16
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),# 1/32
+                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/32
             nn.LeakyReLU(slop),
             # add more downsampling layer
             utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),# 1/64
+                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/64
+            nn.LeakyReLU(slop),
+            utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
+                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/128
             nn.LeakyReLU(slop)
         )
         self.classfier = utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1 , kernel_size= 3))
