@@ -25,18 +25,19 @@ class Discriminator(nn.Module):
         super().__init__()
         # padding_size = int((k_size -1)/2)
         slop         = 0.02
+        feature_size = 2
         self.block = nn.Sequential(
             utils.spectral_norm(nn.Conv2d(in_channels= 3,
-                            out_channels= chn, kernel_size= k_size, stride= 2, bias= False)), # 1/2
+                            out_channels= chn, kernel_size= k_size, stride= 2, bias= True)), # 1/2
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn,
-                            out_channels = chn*2, kernel_size= k_size, stride= 2, bias= False)),# 1/4
+                            out_channels = chn*2, kernel_size= k_size, stride= 2, bias= True)),# 1/4
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*2,
-                            out_channels = chn*4, kernel_size= k_size, stride= 2, bias= False)),# 1/8
+                            out_channels = chn*4, kernel_size= k_size, stride= 2, bias= True)),# 1/8
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*4,
-                            out_channels= chn*8, kernel_size= k_size, stride= 2, bias= False)),# 1/16
+                            out_channels= chn*8, kernel_size= k_size, stride= 2, bias= True)),# 1/16
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/32
@@ -46,10 +47,12 @@ class Discriminator(nn.Module):
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/64
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/128
-            nn.LeakyReLU(slop)
+                            out_channels= chn*32, kernel_size= k_size, stride= 2, bias= True)),# 1/128
+            nn.LeakyReLU(slop),
+            nn.MaxPool2d(3,2) # 1/256
         )
-        self.classfier = utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1 , kernel_size= 3))
+        currentDim = feature_size * chn * 32
+        self.fc_adv = nn.Linear(currentDim, 1)
         self.__weights_init__()
 
     def __weights_init__(self):
@@ -61,8 +64,10 @@ class Discriminator(nn.Module):
     def forward(self, input):
         
         h       = self.block(input)
-        out     = self.classfier(h)
+        out     = self.fc_adv(h)
         return out
 
 if __name__ == "__main__":
     wocao = Discriminator()
+    from utilities.torchsummary import summary
+    summary(wocao, input_size=(3, 768, 768))
