@@ -1,7 +1,7 @@
 # Related scripts
-trainScriptName: SN1
+trainScriptName: GP
 gScriptName: Generator_tanh
-dScriptName: Discriminator_SN_FC
+dScriptName: Discriminator_GP_FC
 
 # Device
 threads: -1
@@ -48,9 +48,10 @@ lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
 dStep: 1
-gStep: 1
+gStep: 4
 featureWeight: 100.0
-transformWeight: 100.0
+transformWeight: 80.0
+GPWeight: 1
 
 # Model hyper-parameters
 GConvDim: 32

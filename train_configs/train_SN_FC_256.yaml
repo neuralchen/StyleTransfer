@@ -3,16 +3,13 @@ trainScriptName: SN1
 gScriptName: Generator_tanh
 dScriptName: Discriminator_SN_FC
 
-# Device
-threads: -1
-
 # Training information
 totalStep: 1000000
-batchSize: 1
+batchSize: 24
 max2Keep: 10
 
 # Dataset
-imCropSize: 768
+imCropSize: 256
 selectedStyleDir: "vincent-van-gogh_road-with-cypresses-1890"
 
 selectedContentDir: ['a/abbey', 'a/arch', 'a/amphitheater', 'a/aqueduct', 'a/arena/rodeo', 'a/athletic_field/outdoor',
@@ -48,7 +45,7 @@ lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
 dStep: 1
-gStep: 1
+gStep: 2
 featureWeight: 100.0
 transformWeight: 100.0
 

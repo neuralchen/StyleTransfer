@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: train_GP.py
+# File: train_SN1.py
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 14th April 2020 3:33:50 pm
+# Last Modified:  Wednesday, 15th April 2020 8:30:46 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -24,6 +24,7 @@ from    functools import partial
 
 from    data_tools.data_loader import getLoader
 from    components.Transform import Transform_block
+from    components.GradientPenalty import GradientPenalty
 from    utilities.utilities import denorm
 from    components.Generator import Generator
 from    components.Discriminator import Discriminator
@@ -55,6 +56,7 @@ class Trainer(object):
         workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
+        gpWeight    = self.config["GPWeight"]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -152,14 +154,20 @@ class Trainer(object):
                 d_loss_real = Hinge_loss(1 - d_out).mean()
 
                 d_out = Dis(content_images)
-                d_loss_photo = Hinge_loss(1 + d_out).mean()
+                d_loss_photo= Hinge_loss(1 + d_out).mean()
 
-                fake_image,_ = Gen(content_images)
+                fake_image,_= Gen(content_images)
                 d_out = Dis(fake_image.detach())
                 d_loss_fake = Hinge_loss(1 + d_out).mean()
+
+                
+                alpha       = torch.rand(batch_size, 1, 1, 1).cuda()
+                x_hat       = (alpha * style_images + (1 - alpha) * fake_image).requires_grad_(True)
+                out_src     = Dis(x_hat)
+                gp          = GradientPenalty(out_src, x_hat)
                 
                 # Backward + Optimize
-                d_loss = d_loss_real + d_loss_photo + d_loss_fake
+                d_loss = d_loss_real + d_loss_fake + d_loss_photo + gpWeight * gp 
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
@@ -190,8 +198,8 @@ class Trainer(object):
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
-                      format(elapsed, step + 1, total_step, (step + 1),
+                print("V[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
+                      format(self.config["version"],elapsed, step + 1, total_step, (step + 1),
                              total_step , d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
                 
                 if self.config["useTensorboard"]:

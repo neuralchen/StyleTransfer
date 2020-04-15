@@ -1,6 +1,6 @@
 {
-    "main.py": 1586872489.173803,
-    "parameters.py": 1586939631.1957257,
+    "main.py": 1586963937.9364488,
+    "parameters.py": 1586963881.1930616,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
@@ -30,7 +30,7 @@
     "components\\Generator_tanh.py": 1586705293.8457153,
     "train_scripts\\trainer_SN1.py": 1586939489.8929398,
     "components\\Discriminator_MultiScale1.py": 1586712687.1286616,
-    "train_scripts\\trainer_GP.py": 1586849631.0524364,
+    "train_scripts\\trainer_GP.py": 1586953846.9632106,
     "update.py": 1586872951.6868384,
     "train_configs\\train_multiscale.yaml": 1586712890.6856644,
     "train_configs\\train_singlescale.yaml": 1586578834.5137618,
@@ -40,7 +40,11 @@
     "data_tools\\data_loader_modify.py": 1586884045.496,
     "components\\torchsummary.py": 1586937371.6069489,
     "utilities\\torchsummary.py": 1586937371.6069489,
-    "components\\Discriminator_SN_FC.py": 1586941151.5840526,
-    "train_configs\\train_SN_FC.yaml": 1586939566.7692604,
-    "data_tools\\data_loader1.py": 1586940048.792
+    "components\\Discriminator_SN_FC.py": 1586965104.4974978,
+    "train_configs\\train_SN_FC.yaml": 1586959863.9269624,
+    "data_tools\\data_loader1.py": 1586940048.792,
+    "components\\Discriminator_GP_FC.py": 1586952804.2367613,
+    "components\\GradientPenalty.py": 1586950915.5934885,
+    "train_configs\\train_GP.yaml": 1586953124.127025,
+    "train_configs\\train_SN_FC_256.yaml": 1586967347.683995
 }
