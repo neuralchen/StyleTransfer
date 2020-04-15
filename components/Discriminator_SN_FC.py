@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 15th April 2020 12:54:07 am
+# Last Modified:  Wednesday, 15th April 2020 4:59:11 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -25,7 +25,7 @@ class Discriminator(nn.Module):
         super().__init__()
         # padding_size = int((k_size -1)/2)
         slop         = 0.02
-        feature_size = 2
+        feature_size = 1
         self.block = nn.Sequential(
             utils.spectral_norm(nn.Conv2d(in_channels= 3,
                             out_channels= chn, kernel_size= k_size, stride= 2, bias= True)), # 1/2
@@ -47,27 +47,29 @@ class Discriminator(nn.Module):
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/64
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
-                            out_channels= chn*32, kernel_size= k_size, stride= 2, bias= True)),# 1/128
+                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/128
             nn.LeakyReLU(slop),
             nn.MaxPool2d(3,2) # 1/256
         )
-        currentDim = feature_size * chn * 32
-        self.fc_adv = nn.Linear(currentDim, 1)
+        currentDim = feature_size * chn * 16
+        self.fc_adv = utils.spectral_norm(nn.Linear(currentDim, 1))
         self.__weights_init__()
 
     def __weights_init__(self):
         print("Init weights")
         for m in self.modules():
-            if isinstance(m,nn.Conv2d):
+            if isinstance(m,nn.Conv2d) or isinstance(m,nn.Linear):
                 nn.init.xavier_uniform_(m.weight)
+                nn.init.zeros_(m.bias)
 
     def forward(self, input):
         
         h       = self.block(input)
+        h       = h.view(h.size()[0], -1)
         out     = self.fc_adv(h)
         return out
 
 if __name__ == "__main__":
-    wocao = Discriminator()
-    from utilities.torchsummary import summary
+    wocao = Discriminator().cuda()
+    from torchsummary import summary
     summary(wocao, input_size=(3, 768, 768))

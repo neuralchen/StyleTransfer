@@ -3,7 +3,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 15th April 2020 12:55:32 am
+# Last Modified:  Wednesday, 15th April 2020 4:33:50 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -21,9 +21,9 @@ def getParameters():
     parser.add_argument('--dataloader_workers', type=int, default=4)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN3')
-    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to a SN one and replace loss with the hingle loss D:G 3:1, add color jitter, add another downsampling layer in D")
-    parser.add_argument('--trainYaml', type=str, default="train_SN1.yaml")
+    parser.add_argument('--version', type=str, default='SN-FC')
+    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to SN one with FC")
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC.yaml")
 
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
