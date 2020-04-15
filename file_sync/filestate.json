@@ -1,13 +1,13 @@
 {
     "main.py": 1586872489.173803,
-    "parameters.py": 1586855442.2364445,
+    "parameters.py": 1586883332.3152237,
     "update_remote_project.py": 1586500173.1962554,
     "components\\DeConv.py": 1586361573.2773502,
     "components\\Discriminator.py": 1586446179.7677865,
     "components\\Generator.py": 1586518702.9858487,
     "components\\ResBlock.py": 1586358463.3046033,
     "components\\Transform.py": 1586232538.2576735,
-    "data_tools\\data_loader.py": 1586502657.033142,
+    "data_tools\\data_loader.py": 1586883762.029349,
     "data_tools\\test_data_loader.py": 1586832328.4301188,
     "test_scripts\\tester_common.py": 1586847660.4570098,
     "train_scripts\\trainer_norm.py": 1586284391.963429,
@@ -24,9 +24,9 @@
     "components\\Discriminator_SingleScale1.py": 1586711944.1873765,
     "components\\Discriminator_MultiScale.py": 1586712726.2831612,
     "train_scripts\\trainer_multiscale.py": 1586712827.158226,
-    "components\\Discriminator_SN.py": 1586700161.2362287,
-    "train_scripts\\trainer_SN.py": 1586704863.2669923,
-    "components\\Discriminator_SN1.py": 1586704696.830444,
+    "components\\Discriminator_SN.py": 1586883243.616615,
+    "train_scripts\\trainer_SN.py": 1586883048.2071714,
+    "components\\Discriminator_SN1.py": 1586883247.837681,
     "components\\Generator_tanh.py": 1586705293.8457153,
     "train_scripts\\trainer_SN1.py": 1586705042.8075113,
     "components\\Discriminator_MultiScale1.py": 1586712687.1286616,
@@ -35,6 +35,7 @@
     "train_configs\\train_multiscale.yaml": 1586712890.6856644,
     "train_configs\\train_singlescale.yaml": 1586578834.5137618,
     "train_configs\\train_SN.yaml": 1586628192.3729146,
-    "train_configs\\train_SN1.yaml": 1586855357.0741663,
-    "train_configs\\train_styleaware.yaml": 1586361234.3099709
+    "train_configs\\train_SN1.yaml": 1586883547.951913,
+    "train_configs\\train_styleaware.yaml": 1586361234.3099709,
+    "data_tools\\data_loader_modify.py": 1586884045.496
 }
