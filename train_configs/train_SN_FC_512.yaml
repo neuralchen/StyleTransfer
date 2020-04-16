@@ -1,15 +1,15 @@
 # Related scripts
 trainScriptName: SN1
 gScriptName: Generator_tanh
-dScriptName: Discriminator_SN1
+dScriptName: Discriminator_SN_FC
 
 # Training information
 totalStep: 1000000
-batchSize: 24
+batchSize: 16
 max2Keep: 10
 
 # Dataset
-imCropSize: 256
+imCropSize: 512
 selectedStyleDir: "vincent-van-gogh_road-with-cypresses-1890"
 
 selectedContentDir: ['a/abbey', 'a/arch', 'a/amphitheater', 'a/aqueduct', 'a/arena/rodeo', 'a/athletic_field/outdoor',

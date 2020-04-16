@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 15th April 2020 12:54:07 am
+# Last Modified:  Thursday, 16th April 2020 10:58:47 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -41,10 +41,10 @@ class Discriminator(nn.Module):
             utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),# 1/32
             nn.LeakyReLU(slop),
-            # add more downsampling layer
-            utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),# 1/64
-            nn.LeakyReLU(slop)
+            # # add more downsampling layer
+            # utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
+            #                 out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False)),# 1/64
+            # nn.LeakyReLU(slop)
         )
         self.classfier = utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1 , kernel_size= 3))
         self.__weights_init__()
@@ -61,5 +61,8 @@ class Discriminator(nn.Module):
         out     = self.classfier(h)
         return out
 
+
 if __name__ == "__main__":
-    wocao = Discriminator()
+    wocao = Discriminator().cuda()
+    from torchsummary import summary
+    summary(wocao, input_size=(3, 256, 256))
