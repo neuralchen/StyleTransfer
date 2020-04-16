@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 10:59:36 am
+# Last Modified:  Thursday, 16th April 2020 8:19:56 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -33,9 +33,9 @@ def getParameters():
     parser.add_argument('--dataloader_workers', type=int, default=4)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC256')
+    parser.add_argument('--version', type=str, default='SN-FC512_wo_photo')
     parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to SN one with FC")
-    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256.yaml")
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512.yaml")
 
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
@@ -267,6 +267,7 @@ def main(config):
         # print("Image Size: %d"%sys_state["imsize"])
         print("Image Crop Size: %d"%sys_state["imCropSize"])
         print("D : G = %d : %d"%(sys_state["dStep"],sys_state["gStep"]))
+        print("Batch size %d"%(sys_state["batchSize"]))
         # Load the training script and start to train
         reporter.writeConfig(sys_state)
         package     = __import__(moduleName, fromlist=True)

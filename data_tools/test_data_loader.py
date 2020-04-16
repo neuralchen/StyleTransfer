@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 14th April 2020 10:45:27 am
+# Last Modified:  Thursday, 16th April 2020 12:55:16 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -64,7 +64,7 @@ class TestDataset(data.Dataset):
             else:
                 torch.cat((res,self.transforms(image).unsqueeze(0)),0)
         self.pointer = end
-        return res
+        return res,Path(filename).name
     def __len__(self):
         """Return the number of images."""
         return self.num_images

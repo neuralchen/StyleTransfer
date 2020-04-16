@@ -1,12 +1,14 @@
 # Related scripts
 trainScriptName: SN1
-gScriptName: Generator_tanh
+gScriptName: Generator
 dScriptName: Discriminator_SN_FC
 
 # Training information
 totalStep: 1000000
-batchSize: 16
+batchSize: 4
 max2Keep: 10
+movingAverage: 0.05
+dSuccessThreshold: 0.8
 
 # Dataset
 imCropSize: 512
@@ -46,8 +48,8 @@ beta1: 0.9
 beta2: 0.999
 dStep: 1
 gStep: 3
-featureWeight: 100.0
-transformWeight: 100.0
+featureWeight: 50.0
+transformWeight: 50.0
 
 # Model hyper-parameters
 GConvDim: 32
@@ -61,7 +63,7 @@ GOutActName: tanh
 DActName: leakyrelu
 
 # Log 
-logStep: 200
+logStep: 300
 sampleStep: 500
 modelSaveStep: 2000
 useTensorboard: True

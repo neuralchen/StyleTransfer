@@ -5,7 +5,7 @@ dScriptName: Discriminator_SN1
 
 # Training information
 totalStep: 1000000
-batchSize: 24
+batchSize: 16
 max2Keep: 10
 
 # Dataset

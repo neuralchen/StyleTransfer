@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 10:20:40 pm
+# Last Modified:  Thursday, 16th April 2020 8:07:58 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -53,8 +53,10 @@ class Trainer(object):
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         workers     = self.config["dataloader_workers"]
-        dStep       = self.config["dStep"]
-        gStep       = self.config["gStep"]
+        # dStep       = self.config["dStep"]
+        # gStep       = self.config["gStep"]
+        win_rate    = self.config["dSuccessThreshold"]
+        alpha       = self.config["movingAverage"]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -113,20 +115,21 @@ class Trainer(object):
         MSE_loss= torch.nn.MSELoss()
         # C_loss  = torch.nn.BCEWithLogitsLoss()
         # L1_loss     = torch.nn.SmoothL1Loss()
-        Hinge_loss  = torch.nn.ReLU()
+        Hinge_loss  = torch.nn.ReLU().cuda()
 
         # Start with trained model
         if self.config["mode"] == "finetune":
             start = self.config["checkpointStep"]
         else:
             start = 0
-        total_step = total_step//(gStep+dStep)
+        # total_step = total_step//(gStep+dStep)
         
         # Data iterator
         print("prepare the dataloaders...")
         content_iter    = iter(content_loader)
         style_iter      = iter(style_loader)
 
+        discr_success   = 0.8
         # Start time
         print('Start   ======  training...')
         start_time = time.time()
@@ -136,37 +139,43 @@ class Trainer(object):
             
             # ================== Train D ================== #
             # Compute loss with real images
-            for _ in range(dStep):
+            if discr_success <= win_rate:
                 try:
                     content_images =next(content_iter)
                     style_images = next(style_iter)
                 except:
                     style_iter      = iter(style_loader)
                     content_iter    = iter(content_loader)
-                    style_images = next(style_iter)
-                    content_images = next(content_iter)
+                    style_images    = next(style_iter)
+                    content_images  = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 
                 d_out = Dis(style_images)
                 d_loss_real = Hinge_loss(1 - d_out).mean()
+                real_acc = torch.gt(d_out,0).type(torch.float).mean()
 
                 d_out = Dis(content_images)
                 d_loss_photo = Hinge_loss(1 + d_out).mean()
+                photo_acc =  torch.lt(d_out,0).type(torch.float).mean()
 
                 fake_image,_ = Gen(content_images)
                 d_out = Dis(fake_image.detach())
                 d_loss_fake = Hinge_loss(1 + d_out).mean()
+                fake_acc =  torch.lt(d_out,0).type(torch.float).mean()
+
+                d_acc = ((real_acc + photo_acc + fake_acc)/3).item()
+                discr_success = discr_success * (1. - alpha) + alpha * d_acc
                 
                 # Backward + Optimize
-                d_loss = d_loss_real + d_loss_fake + d_loss_photo
+                d_loss = d_loss_real + d_loss_photo + d_loss_fake
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
                 
 
             # ================== Train G ================== #
-            for _ in range(gStep):
+            else:
                 try:
                     content_images =next(content_iter)
                 except:
@@ -181,11 +190,15 @@ class Trainer(object):
                 g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
 
                 g_loss_fake = - fake_out.mean()
+                # print("g_loss_fake:%.4f"%g_loss_fake)
+                g_acc =  torch.gt(fake_out,0.5).type(torch.float).mean()
+                discr_success = discr_success * (1. - alpha) + alpha * (1.0 - g_acc)
+                
                 g_loss_fake = g_loss_fake + g_feature_loss* feature_w + g_transform_loss* transform_w
                 g_optimizer.zero_grad()
                 g_loss_fake.backward()
                 g_optimizer.step()
-
+            # print("success: %.3f"%discr_success)
             # Print out log info
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time

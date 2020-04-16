@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 14th April 2020 3:01:00 pm
+# Last Modified:  Thursday, 16th April 2020 12:55:52 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -60,13 +60,13 @@ class Tester(object):
         Gen.eval()
         with torch.no_grad():
             for iii in tqdm(range(total//batch_size)):
-                content = test_data()
+                content,img_name = test_data()
                 if self.config["cuda"] >=0:
                     content = content.cuda()       
                 res,_ = Gen(content)
                 print("Save test data")
                 save_image(denorm(res.data),
-                            os.path.join(save_dir, '{}_step{}_v_{}.png'.format(iii + 1,self.config["checkpointStep"],self.config["version"])),nrow=batch_size)#,nrow=self.batch_size)
+                            os.path.join(save_dir, '{}_step{}_v_{}.png'.format(img_name,self.config["checkpointStep"],self.config["version"])),nrow=batch_size)#,nrow=self.batch_size)
         elapsed = time.time() - start_time
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Elapsed [{}]".format(elapsed))

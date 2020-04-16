@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 14th April 2020 10:02:31 pm
+# Last Modified:  Thursday, 16th April 2020 6:50:26 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -54,18 +54,6 @@ if __name__ == "__main__":
         else:
             changed_files.append(item._str)
             last_state[item._str] = temp
-            
-    # files = Path('.').glob('*/*.py') # */
-    # for item in files:
-    #     temp = item.stat().st_mtime
-    #     if item._str in last_state:
-    #         last_mtime = last_state[item._str]
-    #         if last_mtime != temp:
-    #             changed_files.append(item._str)
-    #             last_state[item._str] = temp
-    #     else:
-    #         changed_files.append(item._str)
-    #         last_state[item._str] = temp
     
     with open(path, 'w') as cf:
         configjson  = json.dumps(last_state, indent=4)
@@ -74,9 +62,9 @@ if __name__ == "__main__":
     print(changed_files)
     root_path = "/home/gdp/CXH/StyleTransfer"
 
-    wocaonima = fileUploaderClass("192.168.101.57","gdp","glass123456")
+    remotemachine = fileUploaderClass("192.168.101.57","gdp","glass123456")
     for item in changed_files:
         localfile = item
         print("here %s"%item)
         remotefile = Path(root_path,item).as_posix()
-        wocaonima.sshScpPut(localfile,remotefile)
+        remotemachine.sshScpPut(localfile,remotefile)

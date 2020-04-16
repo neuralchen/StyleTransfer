@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 15th April 2020 11:38:23 pm
+# Last Modified:  Thursday, 16th April 2020 10:18:35 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -25,7 +25,7 @@ class Discriminator(nn.Module):
         super().__init__()
         # padding_size = int((k_size -1)/2)
         slop         = 0.02
-        feature_size = 5
+        feature_size = 1
         self.block = nn.Sequential(
             utils.spectral_norm(nn.Conv2d(in_channels= 3,
                             out_channels= chn, kernel_size= k_size, stride= 2, bias= True)), # 1/2
@@ -40,13 +40,16 @@ class Discriminator(nn.Module):
                             out_channels= chn*8, kernel_size= k_size, stride= 2, bias= True)),# 1/16
             nn.LeakyReLU(slop),
             utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
-                            out_channels= chn*16, kernel_size= k_size, stride= 2, bias= True)),# 1/32
+                            out_channels= chn*8, kernel_size= k_size, stride= 2, bias= True)),# 1/32
             nn.LeakyReLU(slop),
-            nn.MaxPool2d(5,1)
-            # utils.spectral_norm(nn.Conv2d(in_channels= chn*16, out_channels= 1, kernel_size= k_size)),
-            # nn.LeakyReLU(slop)
+            nn.AdaptiveAvgPool2d(1)
+            # utils.spectral_norm(nn.Conv2d(in_channels= chn*8,
+            #                 out_channels= chn*16, stride= 2, kernel_size= k_size)), # 1/64
+            # nn.LeakyReLU(slop),
+            # utils.spectral_norm(nn.Conv2d(in_channels= chn*16,
+            #                 out_channels= chn*16, stride= 1, kernel_size= k_size)), # 1/64
         )
-        currentDim = chn*16
+        currentDim = feature_size**2 * chn*8
         self.fc_adv = utils.spectral_norm(nn.Linear(currentDim, 1))
         self.__weights_init__()
 
@@ -67,4 +70,4 @@ class Discriminator(nn.Module):
 if __name__ == "__main__":
     wocao = Discriminator().cuda()
     from torchsummary import summary
-    summary(wocao, input_size=(3, 256, 256))
+    summary(wocao, input_size=(3, 512, 512))
