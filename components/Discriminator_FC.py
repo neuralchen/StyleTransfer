@@ -5,7 +5,7 @@
 # Created Date: Saturday April 11th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 7:23:51 pm
+# Last Modified:  Friday, 17th April 2020 12:30:41 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -24,8 +24,8 @@ class Discriminator(nn.Module):
     def __init__(self, chn=32, k_size=5):
         super().__init__()
         # padding_size = int((k_size -1)/2)
-        slop         = 0.02
-        feature_size = 5
+        slop         = 0.2
+        feature_size = 2
         self.block = nn.Sequential(
             nn.Conv2d(in_channels= 3,
                             out_channels= chn, kernel_size= k_size, stride= 2, bias= False), # 1/2
@@ -47,12 +47,12 @@ class Discriminator(nn.Module):
                             out_channels= chn*16, kernel_size= k_size, stride= 2, bias= False),# 1/32
             nn.InstanceNorm2d(chn*16, affine=True, momentum=0),
             nn.LeakyReLU(slop),
-            nn.Conv2d(in_channels= chn*16, out_channels= chn*16, stride= 2, kernel_size= k_size, bias= False),
-            nn.InstanceNorm2d(chn*16, affine=True, momentum=0),
-            nn.LeakyReLU(slop),
-            nn.MaxPool2d(5,1)
+            # nn.Conv2d(in_channels= chn*16, out_channels= chn*16, stride= 2, kernel_size= k_size, bias= False),
+            # nn.InstanceNorm2d(chn*16, affine=True, momentum=0),
+            # nn.LeakyReLU(slop),
+            nn.AdaptiveAvgPool2d(2)
         )
-        currentDim = chn*16
+        currentDim = feature_size**2 * chn*16
         self.fc_adv = nn.Linear(currentDim, 1)
         self.__weights_init__()
 

@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 15th April 2020 1:02:41 am
+# Last Modified:  Friday, 17th April 2020 12:12:18 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -47,24 +47,24 @@ class ArtDataset(data.Dataset):
         # image = Image.open(os.path.join(self.image_dir, filename))
         filename = self.dataset[index]
         image = Image.open(filename)
-        # print("original size",image.size)
-        if max(image.size) > 1800:
-            alpha = 1800. / float(min(image.size))
-            image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        if max(image.size) < 800:
-            # Resize the smallest side of the image to 800px
-            alpha = 800. / float(min(image.size))
-            if alpha < 4.:
-                image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-            else:
-                image = image.resize((800,800))
-        if min(image.size) < 800:
-            # Resize the smallest side of the image to 800px
-            alpha = 800. / float(min(image.size))
-            if alpha < 4.:
-                image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-            else:
-                image = image.resize((800,800))
+        # # print("original size",image.size)
+        # if max(image.size) > 1800:
+        #     alpha = 1800. / float(min(image.size))
+        #     image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        # if max(image.size) < 800:
+        #     # Resize the smallest side of the image to 800px
+        #     alpha = 800. / float(min(image.size))
+        #     if alpha < 4.:
+        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        #     else:
+        #         image = image.resize((800,800))
+        # if min(image.size) < 800:
+        #     # Resize the smallest side of the image to 800px
+        #     alpha = 800. / float(min(image.size))
+        #     if alpha < 4.:
+        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        #     else:
+        #         image = image.resize((800,800))
         # print("after resize",image.size)
         res   = self.transform(image)
         return res
@@ -107,25 +107,25 @@ class ContentDataset(data.Dataset):
         """Return one image and its corresponding attribute label."""
         filename = self.dataset[index]
         image = Image.open(filename)
-        image = image.resize((image.size[0]*2,image.size[1]*2))
-        # print("original size",image.size)
-        if max(image.size) > 1800:
-            alpha = 1800. / float(min(image.size))
-            image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        if max(image.size) < 800:
-            # Resize the smallest side of the image to 800px
-            alpha = 800. / float(min(image.size))
-            if alpha < 4.:
-                image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-            else:
-                image = image.resize((800,800))
-        if min(image.size) < 800:
-            # Resize the smallest side of the image to 800px
-            alpha = 800. / float(min(image.size))
-            if alpha < 4.:
-                image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-            else:
-                image = image.resize((800,800))
+        # image = image.resize((image.size[0]*2,image.size[1]*2))
+        # # print("original size",image.size)
+        # if max(image.size) > 1800:
+        #     alpha = 1800. / float(min(image.size))
+        #     image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        # if max(image.size) < 800:
+        #     # Resize the smallest side of the image to 800px
+        #     alpha = 800. / float(min(image.size))
+        #     if alpha < 4.:
+        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        #     else:
+        #         image = image.resize((800,800))
+        # if min(image.size) < 800:
+        #     # Resize the smallest side of the image to 800px
+        #     alpha = 800. / float(min(image.size))
+        #     if alpha < 4.:
+        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
+        #     else:
+        #         image = image.resize((800,800))
         # print("after resize",image.size)
         res   = self.transform(image)
         return res
@@ -138,6 +138,8 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
                                     colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
     """Build and return a data loader."""
     transforms = []
+
+    transforms.append(T.Resize(800))
     transforms.append(T.RandomCrop(crop_size))
     transforms.append(T.RandomHorizontalFlip())
     transforms.append(T.RandomVerticalFlip())

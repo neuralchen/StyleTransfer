@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 8:19:56 pm
+# Last Modified:  Friday, 17th April 2020 1:31:57 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -33,8 +33,8 @@ def getParameters():
     parser.add_argument('--dataloader_workers', type=int, default=4)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC512_wo_photo')
-    parser.add_argument('--experimentDescription', type=str, default="modify the discriminator to SN one with FC")
+    parser.add_argument('--version', type=str, default='SN-FC512_2')
+    parser.add_argument('--experimentDescription', type=str, default="stable of this training scripts")
     parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512.yaml")
 
     # test
@@ -277,5 +277,8 @@ def main(config):
         trainer.train()
 
 if __name__ == '__main__':
+    
+    # import warnings
+    # warnings.filterwarnings('ignore')
     config = getParameters()
     main(config)

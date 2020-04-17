@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: train_SN1.py
+# File: train_styleaware.py
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 10:20:23 am
+# Last Modified:  Friday, 17th April 2020 11:22:21 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -50,11 +50,13 @@ class Trainer(object):
         beta2       = self.config["beta2"]
         lrDecayStep = self.config["lrDecayStep"]
         batch_size  = self.config["batchSize"]
+        prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
+        label_size  = 3
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -82,6 +84,8 @@ class Trainer(object):
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
+        # Gen     = Generator(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
+        # Dis     = Discriminator(self.config["DConvDim"], self.config["DKS"])
         self.reporter.writeInfo("Generator structure:")
         self.reporter.writeModel(Gen.__str__())
         # print(self.Decoder)
@@ -91,7 +95,6 @@ class Trainer(object):
         Transform = Transform_block().cuda()
         Gen     = Gen.cuda()
         Dis     = Dis.cuda()
-
 
         if self.config["mode"] == "finetune":
             model_path = os.path.join(self.config["projectCheckpoints"], "%d_Generator.pth"%self.config["checkpointStep"])
@@ -108,19 +111,29 @@ class Trainer(object):
 
         d_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, 
                                     Dis.parameters()), lr_base, [beta1, beta2])
-
         L1_loss = torch.nn.L1Loss()
         MSE_loss= torch.nn.MSELoss()
-        # C_loss  = torch.nn.BCEWithLogitsLoss()
-        # L1_loss     = torch.nn.SmoothL1Loss()
         Hinge_loss  = torch.nn.ReLU().cuda()
+        # L1_loss     = torch.nn.SmoothL1Loss()
 
         # Start with trained model
         if self.config["mode"] == "finetune":
             start = self.config["checkpointStep"]
         else:
             start = 0
-        total_step = total_step//(gStep+dStep)
+            
+        # real_labels = []
+        # fake_labels = []
+        # label_size = [[batch_size,1,378,378],[batch_size,1,180,180],[batch_size,1,36,36],[batch_size,1,4,4],[batch_size,1,1,1]]
+        # for i in range(5):
+        #     real_label = torch.ones(label_size[i]).cuda()
+        #     fake_label = torch.zeros(label_size[i]).cuda()
+        #     # threshold = torch.zeros(size[i], device=self.device)
+        #     real_labels.append(real_label)
+        #     fake_labels.append(fake_label)
+        
+        output_size = label_size
+        # output_size_float = float(output_size)
         
         # Data iterator
         print("prepare the dataloaders...")
@@ -131,16 +144,6 @@ class Trainer(object):
         print('Start   ======  training...')
         start_time = time.time()
         for step in range(start, total_step):
-            # if step>500:
-            #     print("Start to train 512 image")
-            #     del content_loader
-            #     del style_loader
-            #     content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
-            #                 512,batch_size,"Content",workers)
-            #     style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-            #                 512,batch_size,"Style",workers)
-            #     content_iter    = iter(content_loader)
-            #     style_iter      = iter(style_loader)
             Dis.train()
             Gen.train()
             
@@ -153,27 +156,39 @@ class Trainer(object):
                 except:
                     style_iter      = iter(style_loader)
                     content_iter    = iter(content_loader)
-                    style_images = next(style_iter)
-                    content_images = next(content_iter)
+                    style_images    = next(style_iter)
+                    content_images  = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 
-                d_out_real = Dis(style_images)
-                d_loss_real = Hinge_loss(1 - d_out_real).mean()
+                d_out = Dis(style_images)
+                d_loss_real = 0
+                for i in range(output_size):
+                    temp = Hinge_loss(1 - d_out[i]).mean()
+                    # temp *= prep_weights[i]
+                    d_loss_real += temp
 
-                d_out_photo = Dis(content_images)
-                d_loss_photo = Hinge_loss(1 + d_out_photo).mean()
+                d_loss_photo = 0
+                d_out = Dis(content_images)
+                for i in range(output_size):
+                    temp = Hinge_loss(1 + d_out[i]).mean()
+                    # temp *= prep_weights[i]
+                    d_loss_photo += temp
 
                 fake_image,_ = Gen(content_images)
-                d_out_fake = Dis(fake_image.detach())
-                d_loss_fake = Hinge_loss(1 + d_out_fake).mean()
+                d_out = Dis(fake_image.detach())
+                d_loss_fake = 0
+                for i in range(output_size):
+                    temp = Hinge_loss(1 + d_out[i]).mean()
+                    # temp *= prep_weights[i]
+                    d_loss_fake += temp
 
                 # Backward + Optimize
-                d_loss = d_loss_real + d_loss_fake + d_loss_photo
+                d_loss = d_loss_real + d_loss_photo + d_loss_fake
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-
+            
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
@@ -181,19 +196,24 @@ class Trainer(object):
                 except:
                     content_iter    = iter(content_loader)
                     content_images  = next(content_iter)
-                content_images  = content_images.cuda()
-                
-                fake_image, real_feature= Gen(content_images)
+                content_images  = content_images.cuda()     
+                fake_image,real_feature = Gen(content_images)
                 fake_feature            = Gen(fake_image, get_feature = True)
-                fake_out                = Dis(fake_image)
+                d_out                   = Dis(fake_image)
                 g_feature_loss          = L1_loss(fake_feature,real_feature)
                 g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
+                g_loss_fake = 0
+                for i in range(output_size):
+                    temp = -d_out[i].mean()
+                    # temp *= prep_weights[i]
+                    g_loss_fake += temp
 
-                g_loss_fake = - fake_out.mean()
+                # backward & optimize
                 g_loss_fake = g_loss_fake + g_feature_loss* feature_w + g_transform_loss* transform_w
                 g_optimizer.zero_grad()
                 g_loss_fake.backward()
                 g_optimizer.step()
+            
 
             # Print out log info
             if (step + 1) % log_frep == 0:

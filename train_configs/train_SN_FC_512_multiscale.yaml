@@ -1,7 +1,7 @@
 # Related scripts
-trainScriptName: SN1
-gScriptName: Generator
-dScriptName: Discriminator_SN_FC
+trainScriptName: SN_multiscale
+gScriptName: Generator_tanh
+dScriptName: Conditional_Discriminator
 
 # Training information
 totalStep: 1000000
@@ -46,8 +46,8 @@ lrDecayStep: 100
 lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
-dStep: 1
-gStep: 3
+dStep: 5
+gStep: 1
 featureWeight: 50.0
 transformWeight: 50.0
 layersWeight: [1.0, 1.0, 1.0, 1.0, 1.0]
@@ -64,7 +64,7 @@ GOutActName: tanh
 DActName: leakyrelu
 
 # Log 
-logStep: 50
+logStep: 200
 sampleStep: 600
 modelSaveStep: 2000
 useTensorboard: True

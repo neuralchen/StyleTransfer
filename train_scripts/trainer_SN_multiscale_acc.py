@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 #############################################################
-# File: train_SN1.py
+# File: train_styleaware.py
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 10:20:23 am
+# Last Modified:  Friday, 10th April 2020 4:35:13 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -50,11 +50,10 @@ class Trainer(object):
         beta2       = self.config["beta2"]
         lrDecayStep = self.config["lrDecayStep"]
         batch_size  = self.config["batchSize"]
+        prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         workers     = self.config["dataloader_workers"]
-        dStep       = self.config["dStep"]
-        gStep       = self.config["gStep"]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -68,20 +67,15 @@ class Trainer(object):
         
         print("build models...")
 
-        if self.config["mode"] == "train":
-            package  = __import__("components."+self.config["gScriptName"], fromlist=True)
-            GClass   = getattr(package, 'Generator')
-            package  = __import__("components."+self.config["dScriptName"], fromlist=True)
-            DClass   = getattr(package, 'Discriminator')
-        elif self.config["mode"] == "finetune":
-            print("finetune load scripts from %s"%self.config["com_base"])
-            package = __import__(self.config["com_base"]+self.config["gScriptName"], fromlist=True)
-            GClass  = getattr(package, 'Generator')
-            package  = __import__(self.config["com_base"]+self.config["dScriptName"], fromlist=True)
-            DClass   = getattr(package, 'Discriminator')
+        package  = __import__("components."+self.config["gScriptName"], fromlist=True)
+        GClass   = getattr(package, 'Generator')
+        package  = __import__("components."+self.config["dScriptName"], fromlist=True)
+        DClass   = getattr(package, 'Discriminator')
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
+        # Gen     = Generator(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
+        # Dis     = Discriminator(self.config["DConvDim"], self.config["DKS"])
         self.reporter.writeInfo("Generator structure:")
         self.reporter.writeModel(Gen.__str__())
         # print(self.Decoder)
@@ -91,7 +85,6 @@ class Trainer(object):
         Transform = Transform_block().cuda()
         Gen     = Gen.cuda()
         Dis     = Dis.cuda()
-
 
         if self.config["mode"] == "finetune":
             model_path = os.path.join(self.config["projectCheckpoints"], "%d_Generator.pth"%self.config["checkpointStep"])
@@ -108,19 +101,33 @@ class Trainer(object):
 
         d_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, 
                                     Dis.parameters()), lr_base, [beta1, beta2])
-
         L1_loss = torch.nn.L1Loss()
         MSE_loss= torch.nn.MSELoss()
-        # C_loss  = torch.nn.BCEWithLogitsLoss()
+        C_loss  = torch.nn.BCEWithLogitsLoss()
         # L1_loss     = torch.nn.SmoothL1Loss()
-        Hinge_loss  = torch.nn.ReLU().cuda()
+        # Hinge_loss  = torch.nn.ReLU()
 
         # Start with trained model
         if self.config["mode"] == "finetune":
             start = self.config["checkpointStep"]
         else:
             start = 0
-        total_step = total_step//(gStep+dStep)
+
+        win_rate      = 0.8
+        discr_success = 0.8
+        alpha         = 0.05
+        real_labels = []
+        fake_labels = []
+        label_size = [[batch_size,1,378,378],[batch_size,1,180,180],[batch_size,1,36,36],[batch_size,1,4,4],[batch_size,1,1,1]]
+        for i in range(5):
+            real_label = torch.ones(label_size[i]).cuda()
+            fake_label = torch.zeros(label_size[i]).cuda()
+            # threshold = torch.zeros(size[i], device=self.device)
+            real_labels.append(real_label)
+            fake_labels.append(fake_label)
+        
+        output_size = len(label_size)
+        output_size_float = float(output_size)
         
         # Data iterator
         print("prepare the dataloaders...")
@@ -131,76 +138,92 @@ class Trainer(object):
         print('Start   ======  training...')
         start_time = time.time()
         for step in range(start, total_step):
-            # if step>500:
-            #     print("Start to train 512 image")
-            #     del content_loader
-            #     del style_loader
-            #     content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
-            #                 512,batch_size,"Content",workers)
-            #     style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-            #                 512,batch_size,"Style",workers)
-            #     content_iter    = iter(content_loader)
-            #     style_iter      = iter(style_loader)
             Dis.train()
             Gen.train()
-            
+            try:
+                content_images =next(content_iter)
+                style_images = next(style_iter)
+            except:
+                style_iter      = iter(style_loader)
+                content_iter    = iter(content_loader)
+                style_images = next(style_iter)
+                content_images = next(content_iter)
+            style_images    = style_images.cuda()
+            content_images  = content_images.cuda()
             # ================== Train D ================== #
             # Compute loss with real images
-            for _ in range(dStep):
-                try:
-                    content_images =next(content_iter)
-                    style_images = next(style_iter)
-                except:
-                    style_iter      = iter(style_loader)
-                    content_iter    = iter(content_loader)
-                    style_images = next(style_iter)
-                    content_images = next(content_iter)
-                style_images    = style_images.cuda()
-                content_images  = content_images.cuda()
+            if discr_success < win_rate:
                 
-                d_out_real = Dis(style_images)
-                d_loss_real = Hinge_loss(1 - d_out_real).mean()
+                d_out = Dis(style_images)
+                d_loss_real = 0
+                real_acc = 0
+                for i in range(output_size):
+                    temp = C_loss(d_out[i],real_labels[i]).mean()
+                    real_acc +=  torch.gt(d_out[i],0).type(torch.float).mean()
+                    temp *= prep_weights[i]
+                    d_loss_real += temp
+                real_acc /= output_size_float
 
-                d_out_photo = Dis(content_images)
-                d_loss_photo = Hinge_loss(1 + d_out_photo).mean()
+                d_loss_photo = 0
+                d_out = Dis(content_images)
+                photo_acc = 0
+                for i in range(output_size):
+                    temp = C_loss(d_out[i],fake_labels[i])
+                    photo_acc +=  torch.lt(d_out[i],0).type(torch.float).mean()
+                    temp *= prep_weights[i]
+                    d_loss_photo += temp
+                photo_acc /= output_size_float 
 
                 fake_image,_ = Gen(content_images)
-                d_out_fake = Dis(fake_image.detach())
-                d_loss_fake = Hinge_loss(1 + d_out_fake).mean()
+                d_out = Dis(fake_image.detach())
+                d_loss_fake = 0
+                fake_acc = 0
+                for i in range(output_size):
+                    temp = C_loss(d_out[i],fake_labels[i]).mean()
+                    fake_acc +=  torch.lt(d_out[i],0).type(torch.float).mean()
+                    temp *= prep_weights[i]
+                    d_loss_fake += temp
+                fake_acc /= output_size_float
 
+                d_acc = ((real_acc + photo_acc + fake_acc)/3).item()
+                discr_success = discr_success * (1. - alpha) + alpha * d_acc
                 # Backward + Optimize
-                d_loss = d_loss_real + d_loss_fake + d_loss_photo
+                d_loss = d_loss_real + d_loss_photo + d_loss_fake
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-
-            # ================== Train G ================== #
-            for _ in range(gStep):
-                try:
-                    content_images =next(content_iter)
-                except:
-                    content_iter    = iter(content_loader)
-                    content_images  = next(content_iter)
-                content_images  = content_images.cuda()
-                
-                fake_image, real_feature= Gen(content_images)
+            else:
+                # ================== Train G ================== #   
+                #      
+                fake_image,real_feature = Gen(content_images)
                 fake_feature            = Gen(fake_image, get_feature = True)
-                fake_out                = Dis(fake_image)
+                d_out                   = Dis(fake_image)
                 g_feature_loss          = L1_loss(fake_feature,real_feature)
                 g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
+                g_loss_fake = 0
+                g_acc = 0
+                for i in range(output_size):
+                    temp = C_loss(d_out[i],real_labels[i]).mean()
+                    g_acc +=  torch.gt(d_out[i],0).type(torch.float).mean()
+                    temp *= prep_weights[i]
+                    g_loss_fake += temp
+                g_acc /= output_size_float
+                
+                discr_success = discr_success * (1. - alpha) + alpha * (1.0 - g_acc)
 
-                g_loss_fake = - fake_out.mean()
+                # backward & optimize
                 g_loss_fake = g_loss_fake + g_feature_loss* feature_w + g_transform_loss* transform_w
                 g_optimizer.zero_grad()
                 g_loss_fake.backward()
                 g_optimizer.step()
+            
 
             # Print out log info
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("V[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
-                      format(self.config["version"],elapsed, step + 1, total_step, (step + 1),
+                print("Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
+                      format(elapsed, step + 1, total_step, (step + 1),
                              total_step , d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
                 
                 if self.config["useTensorboard"]:
@@ -210,18 +233,23 @@ class Trainer(object):
                     tensorboard_writer.add_scalar('data/g_loss', g_loss_fake.item(), (step + 1))
                     tensorboard_writer.add_scalar('data/g_feature_loss', g_feature_loss, (step + 1))
                     tensorboard_writer.add_scalar('data/g_transform_loss', g_transform_loss, (step + 1))
+                    tensorboard_writer.add_scalar('acc/real_acc', real_acc.item(), (step + 1))
+                    tensorboard_writer.add_scalar('acc/photo_acc', photo_acc.item(), (step + 1))
+                    tensorboard_writer.add_scalar('acc/fake_acc', fake_acc.item(), (step + 1))
+                    tensorboard_writer.add_scalar('acc/disc_acc', d_acc, (step + 1))
+                    tensorboard_writer.add_scalar('acc/g_acc', g_acc, (step + 1))
+                    tensorboard_writer.add_scalar("acc/discr_success",discr_success,(step+1))
 
             # Sample images
             if (step + 1) % sample_freq == 0:
                 print('Sample images {}_fake.jpg'.format(step + 1))
-                Gen.eval()
-                with torch.no_grad():
-                    fake_images,_ = Gen(content_images)
-                    saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
-                    # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
-                    # wocao        = torch.cat([saved_image1,saved_image2],2)
-                    save_image(saved_image1,
-                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
+                # fake_images,_ = Gen(content_images)
+                fake_images  = fake_image
+                saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
+                # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
+                # wocao        = torch.cat([saved_image1,saved_image2],2)
+                save_image(saved_image1,
+                           os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:
