@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 12:12:18 pm
+# Last Modified:  Friday, 17th April 2020 5:57:55 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -17,6 +17,7 @@ import torch
 import os
 import random
 from pathlib import Path
+from data_tools.StyleResize import StyleResize
 
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
@@ -138,8 +139,12 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
                                     colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
     """Build and return a data loader."""
     transforms = []
-
-    transforms.append(T.Resize(800))
+    if dataset_name=="Style":
+        transforms.append(StyleResize())
+        # transforms.append(T.Resize(800))
+        pass
+    else:
+        transforms.append(T.Resize(800,Image.BICUBIC))
     transforms.append(T.RandomCrop(crop_size))
     transforms.append(T.RandomHorizontalFlip())
     transforms.append(T.RandomVerticalFlip())
@@ -204,13 +209,13 @@ if __name__ == "__main__":
     datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
     # contentdatapath = "D:\\迅雷下载\\data_large"
     imsize          = 768
-    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
+    datasetloader   = getLoader(datapath, selected_attrs, imsize,16,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
     wocao           = iter(datasetloader)
-    for i in range(10):
+    for i in range(500):
         print("new batch")
         image      = next(wocao)
         # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
-        save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
+        # save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
     pass
     # import cv2
     # import os
