@@ -64,7 +64,7 @@ GOutActName: tanh
 DActName: leakyrelu
 
 # Log 
-logStep: 50
+logStep: 300
 sampleStep: 600
 modelSaveStep: 2000
 useTensorboard: True

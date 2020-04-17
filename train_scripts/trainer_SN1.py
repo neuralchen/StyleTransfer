@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 10:20:23 am
+# Last Modified:  Friday, 17th April 2020 9:51:28 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -199,9 +199,9 @@ class Trainer(object):
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("V[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
-                      format(self.config["version"],elapsed, step + 1, total_step, (step + 1),
-                             total_step , d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
+                print("V[{}], Elapsed [{}], step [{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
+                      format(self.config["version"],elapsed, step + 1, total_step,
+                            d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
                 
                 if self.config["useTensorboard"]:
                     tensorboard_writer.add_scalar('data/d_loss_real', d_loss_real.item(),(step + 1))
