@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 10:40:18 am
+# Last Modified:  Saturday, 18th April 2020 11:02:30 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -107,7 +107,7 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
         transforms.append(StyleResize())
     else:
         transforms.append(T.Resize(800))
-    transforms.append(T.RandomCrop(crop_size))
+    transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
     transforms.append(T.RandomHorizontalFlip())
     transforms.append(T.RandomVerticalFlip())
     # colorBrightness = 0.01
@@ -142,7 +142,7 @@ def denorm(x):
 
 if __name__ == "__main__":
     from torchvision.utils import save_image
-    selected_attrs  = ["vangogh"]
+    selected_attrs  = ["vangogh","picasso","samuel"]
     categories_names = \
         ['a/abbey', 'a/arch', 'a/amphitheater', 'a/aqueduct', 'a/arena/rodeo', 'a/athletic_field/outdoor',
          'b/badlands', 'b/balcony/exterior', 'b/bamboo_forest', 'b/barn', 'b/barndoor', 'b/baseball_field',
@@ -168,17 +168,18 @@ if __name__ == "__main__":
          'w/wheat_field', 'z/zen_garden', 'a/alcove', 'a/apartment-building/outdoor', 'a/artists_loft',
          'b/building_facade', 'c/cemetery']
 
-    datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
+    datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art_backup"
+    savepath        = "D:\\PatchFace\\PleaseWork\\multi-style-gan\\StyleTransfer\\dataloader_test"
     # contentdatapath = "D:\\迅雷下载\\data_large"
-    imsize          = 768
-    datasetloader   = getLoader(datapath, selected_attrs, imsize,16,'Style',8,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
+    imsize          = 512
+    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
     wocao           = iter(datasetloader)
     for i in range(500):
         print("new batch")
         image,label     = next(wocao)
-        print(label)
+        # print(label)
         # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
-        # save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
+        save_image(denorm(image), "%s\\%d-label-%d.jpg"%(savepath,i,label), nrow=1, padding=1)
     pass
     # import cv2
     # import os

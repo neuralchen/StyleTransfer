@@ -5,7 +5,7 @@
 # Created Date: Friday April 17th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 11:58:13 pm
+# Last Modified:  Saturday, 18th April 2020 10:59:15 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -23,16 +23,7 @@ class StyleResize(object):
             h     = int(th*alpha)
             w     = int(tw*alpha)
             images  = F.resize(images, (h, w))
-        # if max(th,tw) < 800:
-        #     # Resize the smallest side of the image to 800px
-        #     alpha = 800. / float(min(th,tw))
-        #     if alpha < 4.:
-        #         h     = int(th*alpha)
-        #         w     = int(tw*alpha)
-        #         images  = F.resize(images, (h, w), Image.BICUBIC)
-        #     else:
-        #         images  = F.resize(images, (800, 800), Image.CUBIC)
-        if min(th,tw) < 800:
+        if max(th,tw) < 800:
             # Resize the smallest side of the image to 800px
             alpha = 800. / float(min(th,tw))
             if alpha < 4.:
@@ -41,6 +32,15 @@ class StyleResize(object):
                 images  = F.resize(images, (h, w))
             else:
                 images  = F.resize(images, (800, 800))
+        # if min(th,tw) < 800:
+        #     # Resize the smallest side of the image to 800px
+        #     alpha = 800. / float(min(th,tw))
+        #     if alpha < 4.:
+        #         h     = int(th*alpha)
+        #         w     = int(tw*alpha)
+        #         images  = F.resize(images, (h, w))
+        #     else:
+        #         images  = F.resize(images, (800, 800))
         
 
         return images

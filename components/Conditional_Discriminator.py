@@ -85,6 +85,13 @@ class Discriminator(nn.Module):
 
         out_prep = [prep1,prep2,prep3]
         return out_prep
+    
+    def get_outputs_len(self):
+        num = 0
+        for m in self.modules():
+            if isinstance(m,nn.Linear):
+                num+=1
+        return num
 
 if __name__ == "__main__":
     wocao = Discriminator().cuda()
