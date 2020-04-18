@@ -5,7 +5,7 @@
 # Created Date: Friday April 17th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 5:55:26 pm
+# Last Modified:  Friday, 17th April 2020 11:58:13 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -22,7 +22,7 @@ class StyleResize(object):
             alpha = 1800. / float(min(th,tw))
             h     = int(th*alpha)
             w     = int(tw*alpha)
-            images  = F.resize(images, (h, w), Image.BICUBIC)
+            images  = F.resize(images, (h, w))
         # if max(th,tw) < 800:
         #     # Resize the smallest side of the image to 800px
         #     alpha = 800. / float(min(th,tw))
@@ -38,9 +38,9 @@ class StyleResize(object):
             if alpha < 4.:
                 h     = int(th*alpha)
                 w     = int(tw*alpha)
-                images  = F.resize(images, (h, w), Image.BICUBIC)
+                images  = F.resize(images, (h, w))
             else:
-                images  = F.resize(images, (800, 800), Image.CUBIC)
+                images  = F.resize(images, (800, 800))
         
 
         return images

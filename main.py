@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 1:31:57 pm
+# Last Modified:  Friday, 17th April 2020 11:41:42 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -30,12 +30,12 @@ def getParameters():
     # general
     parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
-    parser.add_argument('--dataloader_workers', type=int, default=4)
+    parser.add_argument('--dataloader_workers', type=int, default=5)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC512_2')
+    parser.add_argument('--version', type=str, default='SN-FC512_ms_3')
     parser.add_argument('--experimentDescription', type=str, default="stable of this training scripts")
-    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512.yaml")
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512_multiscale.yaml")
 
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
