@@ -108,26 +108,6 @@ class ContentDataset(data.Dataset):
         """Return one image and its corresponding attribute label."""
         filename = self.dataset[index]
         image = Image.open(filename)
-        # image = image.resize((image.size[0]*2,image.size[1]*2))
-        # # print("original size",image.size)
-        # if max(image.size) > 1800:
-        #     alpha = 1800. / float(min(image.size))
-        #     image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        # if max(image.size) < 800:
-        #     # Resize the smallest side of the image to 800px
-        #     alpha = 800. / float(min(image.size))
-        #     if alpha < 4.:
-        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        #     else:
-        #         image = image.resize((800,800))
-        # if min(image.size) < 800:
-        #     # Resize the smallest side of the image to 800px
-        #     alpha = 800. / float(min(image.size))
-        #     if alpha < 4.:
-        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        #     else:
-        #         image = image.resize((800,800))
-        # print("after resize",image.size)
         res   = self.transform(image)
         return res
 
@@ -144,7 +124,7 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
         # transforms.append(T.Resize(800))
         pass
     else:
-        transforms.append(T.Resize(800,Image.BICUBIC))
+        transforms.append(T.Resize(800))
     transforms.append(T.RandomCrop(crop_size))
     transforms.append(T.RandomHorizontalFlip())
     transforms.append(T.RandomVerticalFlip())

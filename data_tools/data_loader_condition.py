@@ -22,11 +22,11 @@ from data_tools.StyleResize import StyleResize
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
 
-    def __init__(self, image_dir, selectedClass, transform, subffix='jpg', random_seed=1234):
+    def __init__(self, image_dir, selectedClasses, transform, subffix='jpg', random_seed=1234):
         """Initialize and preprocess the CelebA dataset."""
         self.image_dir  = image_dir
         self.transform  = transform
-        self.selectedClass = selectedClass
+        self.selectedClasses = selectedClasses
         self.subffix    = subffix
         self.dataset    = []
         self.random_seed= random_seed
@@ -35,9 +35,12 @@ class ArtDataset(data.Dataset):
 
     def preprocess(self):
         """Preprocess the Artworks dataset."""
-        images = Path(self.image_dir).glob('%s/*.%s'%(self.selectedClass, self.subffix))
-        for item in images:
-            self.dataset.append(item)
+        label = 0
+        for class_item in self.selectedClasses:
+            images = Path(self.image_dir).glob('%s/*.%s'%(class_item, self.subffix))
+            for item in images:
+                self.dataset.append([item, label])
+            label += 1
         random.seed(self.random_seed)
         random.shuffle(self.dataset)
         # self.dataset = images
@@ -46,10 +49,10 @@ class ArtDataset(data.Dataset):
     def __getitem__(self, index):
         """Return one image and its corresponding attribute label."""
         # image = Image.open(os.path.join(self.image_dir, filename))
-        filename = self.dataset[index]
+        filename,label = self.dataset[index]
         image = Image.open(filename)
         res   = self.transform(image)
-        return res
+        return res,label
 
     def __len__(self):
         """Return the number of images."""
@@ -122,10 +125,8 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
     transforms = []
     if dataset_name=="Style":
         transforms.append(StyleResize())
-        # transforms.append(T.Resize(800))
-        pass
     else:
-        transforms.append(T.Resize(800,Image.BICUBIC))
+        transforms.append(T.Resize(800))
     transforms.append(T.RandomCrop(crop_size))
     transforms.append(T.RandomHorizontalFlip())
     transforms.append(T.RandomVerticalFlip())
@@ -161,7 +162,7 @@ def denorm(x):
 
 if __name__ == "__main__":
     from torchvision.utils import save_image
-    selected_attrs  = "vangogh"
+    selected_attrs  = ["vangogh"]
     categories_names = \
         ['a/abbey', 'a/arch', 'a/amphitheater', 'a/aqueduct', 'a/arena/rodeo', 'a/athletic_field/outdoor',
          'b/badlands', 'b/balcony/exterior', 'b/bamboo_forest', 'b/barn', 'b/barndoor', 'b/baseball_field',
@@ -194,7 +195,7 @@ if __name__ == "__main__":
     wocao           = iter(datasetloader)
     for i in range(500):
         print("new batch")
-        image      = next(wocao)
+        image,label     = next(wocao)
         # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
         # save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
     pass
