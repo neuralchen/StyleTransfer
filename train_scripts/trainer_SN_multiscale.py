@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 11:22:21 am
+# Last Modified:  Saturday, 18th April 2020 4:04:19 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -22,19 +22,20 @@ from    torch.autograd     import Variable
 from    torchvision.utils  import save_image
 from    functools import partial
 
-from    data_tools.data_loader import getLoader
+# from    data_tools.data_loader_backup import getLoader
 from    components.Transform import Transform_block
 from    utilities.utilities import denorm
 from    components.Generator import Generator
 from    components.Discriminator import Discriminator
 
 class Trainer(object):
-    def __init__(self, config, reporter):
+    def __init__(self, config, dataloaders_list, reporter):
 
         self.config     = config
         # logger
         self.reporter   = reporter
         # Data loader
+        self.dataloaders= dataloaders_list
         
 
     def train(self):
@@ -48,25 +49,28 @@ class Trainer(object):
         lr_base     = self.config["gLr"]
         beta1       = self.config["beta1"]
         beta2       = self.config["beta2"]
-        lrDecayStep = self.config["lrDecayStep"]
-        batch_size  = self.config["batchSize"]
-        prep_weights= self.config["layersWeight"]
+        # lrDecayStep = self.config["lrDecayStep"]
+        # batch_size  = self.config["batchSize"]
+        # prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
-        workers     = self.config["dataloader_workers"]
+        # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
-        label_size  = 3
+
+        style_loader  = self.dataloaders[0]
+        content_loader= self.dataloaders[1]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
             tensorboard_writer = build_tensorboard(self.config["projectSummary"])
 
-        print("prepare the dataloader...")
-        content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
-                            self.config["imCropSize"],batch_size,"Content",workers)
-        style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-                            self.config["imCropSize"],batch_size,"Style",workers)
+        # print("prepare the dataloader...")
+        # style_loader,content_loader  = getLoader(self.config["style"], self.config["content"],
+        #                     self.config["selectedStyleDir"],self.config["selectedContentDir"],
+        #                     self.config["imCropSize"], batch_size,workers)
+        # style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
+        #                     self.config["imCropSize"],batch_size,"Style",workers)
         
         print("build models...")
 
@@ -121,19 +125,8 @@ class Trainer(object):
             start = self.config["checkpointStep"]
         else:
             start = 0
-            
-        # real_labels = []
-        # fake_labels = []
-        # label_size = [[batch_size,1,378,378],[batch_size,1,180,180],[batch_size,1,36,36],[batch_size,1,4,4],[batch_size,1,1,1]]
-        # for i in range(5):
-        #     real_label = torch.ones(label_size[i]).cuda()
-        #     fake_label = torch.zeros(label_size[i]).cuda()
-        #     # threshold = torch.zeros(size[i], device=self.device)
-        #     real_labels.append(real_label)
-        #     fake_labels.append(fake_label)
         
-        output_size = label_size
-        # output_size_float = float(output_size)
+        output_size = Dis.get_outputs_len()
         
         # Data iterator
         print("prepare the dataloaders...")
@@ -150,17 +143,23 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
+                # start_time = time.time()
                 try:
-                    content_images =next(content_iter)
-                    style_images = next(style_iter)
+                    content_images = next(content_iter)
+                    style_images,_ = next(style_iter)
                 except:
                     style_iter      = iter(style_loader)
                     content_iter    = iter(content_loader)
-                    style_images    = next(style_iter)
+                    style_images,_  = next(style_iter)
                     content_images  = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
-                
+
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("data load time %s"%elapsed)
+
+                # start_time = time.time()
                 d_out = Dis(style_images)
                 d_loss_real = 0
                 for i in range(output_size):
@@ -188,7 +187,9 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-            
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("inference time %s"%elapsed)
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
@@ -241,7 +242,7 @@ class Trainer(object):
                     # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
                     # wocao        = torch.cat([saved_image1,saved_image2],2)
                     save_image(saved_image1,
-                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
+                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=2)
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:

@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 11:10:49 am
+# Last Modified:  Saturday, 18th April 2020 3:46:48 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -53,19 +53,21 @@ class Trainer(object):
         prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
-        workers     = self.config["dataloader_workers"]
+        # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
+        content_loader  = self.config["style_dataloader"]
+        style_loader    = self.config["content_dataloader"]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
             tensorboard_writer = build_tensorboard(self.config["projectSummary"])
 
-        print("prepare the dataloader...")
-        content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
-                            self.config["imCropSize"],batch_size,"Content",workers)
-        style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-                            self.config["imCropSize"],batch_size,"Style",workers)
+        # print("prepare the dataloader...")
+        # content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
+        #                     self.config["imCropSize"],batch_size,"Content",workers)
+        # style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
+        #                     self.config["imCropSize"],batch_size,"Style",workers)
         
         print("build models...")
 
@@ -109,8 +111,8 @@ class Trainer(object):
 
         d_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, 
                                     Dis.parameters()), lr_base, [beta1, beta2])
-        L1_loss = torch.nn.L1Loss()
-        MSE_loss= torch.nn.MSELoss()
+        L1_loss     = torch.nn.L1Loss()
+        MSE_loss    = torch.nn.MSELoss()
         Hinge_loss  = torch.nn.ReLU().cuda()
         # L1_loss     = torch.nn.SmoothL1Loss()
 
@@ -138,13 +140,13 @@ class Trainer(object):
             # Compute loss with real images
             for _ in range(dStep):
                 try:
-                    content_images =next(content_iter)
-                    style_images = next(style_iter)
+                    content_images      = next(content_iter)
+                    style_images, label = next(style_iter)
                 except:
-                    style_iter      = iter(style_loader)
-                    content_iter    = iter(content_loader)
-                    style_images    = next(style_iter)
-                    content_images  = next(content_iter)
+                    style_iter          = iter(style_loader)
+                    content_iter        = iter(content_loader)
+                    style_images, label = next(style_iter)
+                    content_images      = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 
@@ -179,14 +181,16 @@ class Trainer(object):
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
-                    content_images =next(content_iter)
+                    content_images  =next(content_iter)
                 except:
                     content_iter    = iter(content_loader)
                     content_images  = next(content_iter)
+                    
                 content_images  = content_images.cuda()     
                 fake_image,real_feature = Gen(content_images)
-                fake_feature            = Gen(fake_image, get_feature = True)
+                fake_feature            = Gen(fake_image, get_feature=True)
                 d_out                   = Dis(fake_image)
+                
                 g_feature_loss          = L1_loss(fake_feature,real_feature)
                 g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
                 g_loss_fake = 0
@@ -206,9 +210,9 @@ class Trainer(object):
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("V[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
-                      format(self.config["version"],elapsed, step + 1, total_step, (step + 1),
-                             total_step , d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
+                print("[{}], Elapsed [{}], Step [{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
+                      format(self.config["version"], elapsed, step + 1, total_step, 
+                            d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
                 
                 if self.config["useTensorboard"]:
                     tensorboard_writer.add_scalar('data/d_loss_real', d_loss_real.item(),(step + 1))
@@ -228,7 +232,7 @@ class Trainer(object):
                     # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
                     # wocao        = torch.cat([saved_image1,saved_image2],2)
                     save_image(saved_image1,
-                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)))
+                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=2)
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:
@@ -242,6 +246,7 @@ class Trainer(object):
                 # save_image(denorm(displaymask.data),os.path.join(self.sample_path, '{}_mask.png'.format(step + 1)))
 
             if (step+1) % model_freq==0:
+                print("Save step %d model checkpoints!"%(step+1))
                 torch.save(Gen.state_dict(),
                            os.path.join(ckpt_dir, '{}_Generator.pth'.format(step + 1)))
                 torch.save(Dis.state_dict(),

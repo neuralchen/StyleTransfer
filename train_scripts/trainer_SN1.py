@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 9:51:28 pm
+# Last Modified:  Saturday, 18th April 2020 1:06:35 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -149,11 +149,11 @@ class Trainer(object):
             for _ in range(dStep):
                 try:
                     content_images =next(content_iter)
-                    style_images = next(style_iter)
+                    style_images,_ = next(style_iter)
                 except:
                     style_iter      = iter(style_loader)
                     content_iter    = iter(content_loader)
-                    style_images = next(style_iter)
+                    style_images,_ = next(style_iter)
                     content_images = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()

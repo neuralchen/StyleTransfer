@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 17th April 2020 11:41:42 pm
+# Last Modified:  Saturday, 18th April 2020 4:19:09 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -21,6 +21,7 @@ from    utilities.sshupload import fileUploaderClass
 # from    train_scripts.trainer_styleaware1 import Trainer
 from    torch.backends import cudnn
 import  argparse
+from    data_tools.data_loader_backup import getLoader
 
 def str2bool(v):
     return v.lower() in ('true')
@@ -30,11 +31,11 @@ def getParameters():
     # general
     parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
-    parser.add_argument('--dataloader_workers', type=int, default=5)
+    parser.add_argument('--dataloader_workers', type=int, default=6)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC512_ms_3')
-    parser.add_argument('--experimentDescription', type=str, default="stable of this training scripts")
+    parser.add_argument('--version', type=str, default='SN-FC512_ms_4')
+    parser.add_argument('--experimentDescription', type=str, default="test if we can reduce the resblock number")
     parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512_multiscale.yaml")
 
     # test
@@ -78,7 +79,10 @@ def create_dirs(sys_state):
     
     sys_state["reporterPath"] = os.path.join(sys_state["projectRoot"],sys_state["version"]+"_report")
 
-def main(config):
+if __name__ == '__main__':
+    # import warnings
+    # warnings.filterwarnings('ignore')
+    config = getParameters()
     # speed up the program
     cudnn.benchmark = True
     ignoreKey = [
@@ -156,7 +160,6 @@ def main(config):
         reporter = Reporter(sys_state["reporterPath"])
         sys_state["com_base"]       = "train_logs.%s.scripts."%sys_state["version"]
         
-        
     elif config.mode == "test":
         sys_state["version"]        = config.version
         sys_state["logRootPath"]    = env_config["trainLogRoot"]
@@ -190,8 +193,7 @@ def main(config):
             
             state = uploader.sshScpGet(remoteFile,localFile)
             if not state:
-                print("Get file %s failed! Program exists!"%remoteFile)
-                return
+                raise Exception(print("Get file %s failed! Program exists!"%remoteFile))
             print("success get the config file from server %s"%nodeinf['ip'])
 
         # Read model_config.json
@@ -214,8 +216,7 @@ def main(config):
             localFile   = os.path.join(sys_state["projectScripts"], sys_state["gScriptName"]+".py")
             state = uploader.sshScpGet(remoteFile, localFile)
             if not state:
-                print("Get file %s failed! Program exists!"%remoteFile)
-                return
+                raise Exception(print("Get file %s failed! Program exists!"%remoteFile))
             print("Get the scripts:%s.py successfully"%sys_state["gScriptName"])
             # Get checkpoint of generator
             localFile   = os.path.join(sys_state["projectCheckpoints"], "%d_Generator.pth"%sys_state["checkpointStep"])
@@ -223,8 +224,7 @@ def main(config):
                 remoteFile  = os.path.join(remotebase, "checkpoints", "%d_Generator.pth"%sys_state["checkpointStep"]).replace('\\','/')
                 state = uploader.sshScpGet(remoteFile, localFile, True)
                 if not state:
-                    print("Get file %s failed! Program exists!"%remoteFile)
-                    return
+                    raise Exception(print("Get file %s failed! Program exists!"%remoteFile))
                 print("Get the %s file successfully"%("%d_Generator.pth"%sys_state["checkpointStep"]))
             else:
                 print("%s file exists"%("%d_Generator.pth"%sys_state["checkpointStep"]))
@@ -259,6 +259,8 @@ def main(config):
         moduleName  = "train_scripts.trainer_" + sys_state["trainScriptName"]
         if config.mode == "finetune":
             moduleName  = sys_state["com_base"] + "trainer_" + sys_state["trainScriptName"]
+        
+        # print some important information
         print("Start to run training script: {}".format(moduleName))
         print("Traning version: %s"%sys_state["version"])
         print("Training Script Name: %s"%sys_state["trainScriptName"])
@@ -268,17 +270,22 @@ def main(config):
         print("Image Crop Size: %d"%sys_state["imCropSize"])
         print("D : G = %d : %d"%(sys_state["dStep"],sys_state["gStep"]))
         print("Batch size %d"%(sys_state["batchSize"]))
+        print("Resblock number %d"%(sys_state["resNum"]))
+        
+        import datetime
+        print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # Load the training script and start to train
         reporter.writeConfig(sys_state)
+
+        print("prepare the dataloader...")
+        style_loader,content_loader  = getLoader(sys_state["style"], sys_state["content"],
+                            sys_state["selectedStyleDir"],sys_state["selectedContentDir"],
+                            sys_state["imCropSize"], sys_state["batchSize"],sys_state["dataloader_workers"])
+        sys_state["style_dataloader"] = style_loader
+        sys_state["content_dataloader"] = content_loader
+
         package     = __import__(moduleName, fromlist=True)
         trainerClass= getattr(package, 'Trainer')
-        trainer     = trainerClass(sys_state,reporter)
+        trainer     = trainerClass(sys_state, [style_loader, content_loader],reporter)
         # trainer  = Trainer(sys_state,reporter)
         trainer.train()
-
-if __name__ == '__main__':
-    
-    # import warnings
-    # warnings.filterwarnings('ignore')
-    config = getParameters()
-    main(config)

@@ -5,18 +5,19 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 11:02:30 am
+# Last Modified:  Saturday, 18th April 2020 1:54:33 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
 
-from torch.utils import data
-from torchvision import transforms as T
-from PIL import Image
-import torch
 import os
+import torch
 import random
+from PIL import Image
 from pathlib import Path
+from torch.utils import data
+import torchvision.datasets as dsets
+from torchvision import transforms as T
 # from data_tools.StyleResize import StyleResize
 from StyleResize import StyleResize
 
@@ -127,7 +128,8 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
     transforms = T.Compose(transforms)
 
     if dataset_name.lower() == 'style':
-        dataset = ArtDataset(image_dir, selected_dir, transforms)
+        # dataset = ArtDataset(image_dir, selected_dir, transforms)
+        dataset = dsets.ImageFolder(image_dir, transform=transforms)
     if dataset_name.lower() == 'content':
         dataset = ContentDataset(image_dir, selected_dir, transforms)
     # elif dataset.lower() == 'Content':

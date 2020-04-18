@@ -57,7 +57,7 @@ GConvDim: 32
 DConvDim: 32
 GKS: 3
 DKS: 5
-resNum: 9
+resNum: 3
 GEncActName: leakyrelu
 GDecActName: relu
 GOutActName: tanh

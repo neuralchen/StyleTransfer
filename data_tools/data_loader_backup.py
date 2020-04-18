@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 3:28:52 pm
+# Last Modified:  Saturday, 18th April 2020 3:32:56 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -18,8 +18,8 @@ import torch
 import os
 import random
 from pathlib import Path
-# from data_tools.StyleResize import StyleResize
-from StyleResize import StyleResize
+from data_tools.StyleResize import StyleResize
+# from StyleResize import StyleResize
 
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
@@ -97,18 +97,25 @@ class ContentDataset(data.Dataset):
         """Return the number of images."""
         return self.num_images
 
-def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_name='Style', num_workers=8, colorJitterEnable=True, 
-                                    colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
+def getLoader(s_image_dir,c_image_dir, 
+                style_selected_dir, content_selected_dir,
+                crop_size=178, batch_size=16, num_workers=8, 
+                colorJitterEnable=True, colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
     """Build and return a data loader."""
-    transforms = []
-    if dataset_name=="Style":
-        transforms.append(StyleResize())
-        pass
-    else:
-        transforms.append(T.Resize(800))
-    transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
-    transforms.append(T.RandomHorizontalFlip())
-    transforms.append(T.RandomVerticalFlip())
+    s_transforms = []
+    c_transforms = []
+    
+    s_transforms.append(StyleResize())
+    c_transforms.append(T.Resize(800))
+
+    s_transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
+    c_transforms.append(T.RandomCrop(crop_size))
+
+    s_transforms.append(T.RandomHorizontalFlip())
+    c_transforms.append(T.RandomHorizontalFlip())
+    
+    s_transforms.append(T.RandomVerticalFlip())
+    c_transforms.append(T.RandomVerticalFlip())
 
     if colorJitterEnable:
         if colorConfig is not None:
@@ -117,20 +124,29 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
             colorContrast   = colorConfig["contrast"]
             colorSaturation = colorConfig["saturation"]
             colorHue        = (-colorConfig["hue"],colorConfig["hue"])
-            transforms.append(T.ColorJitter(brightness=colorBrightness,\
+            s_transforms.append(T.ColorJitter(brightness=colorBrightness,\
                                 contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
-    transforms.append(T.ToTensor())
-    transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
-    transforms = T.Compose(transforms)
+            c_transforms.append(T.ColorJitter(brightness=colorBrightness,\
+                                contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
+    s_transforms.append(T.ToTensor())
+    c_transforms.append(T.ToTensor())
 
-    if dataset_name.lower() == 'style':
-        # dataset = ArtDataset(image_dir, selected_dir, transforms)
-        dataset = dsets.ImageFolder(image_dir, transform=transforms)
-    if dataset_name.lower() == 'content':
-        dataset = ContentDataset(image_dir, selected_dir, transforms)
-        # dataset = dsets.ImageFolder(image_dir, transform=transforms)
-    data_loader = data.DataLoader(dataset=dataset,batch_size=batch_size,drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
-    return data_loader
+    s_transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+    c_transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+    
+    s_transforms = T.Compose(s_transforms)
+    c_transforms = T.Compose(c_transforms)
+
+    style_dataset = dsets.ImageFolder(s_image_dir, transform=s_transforms)
+    style_data_loader = data.DataLoader(dataset=style_dataset,batch_size=batch_size,
+                    drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
+        
+    # content_dataset = dsets.ImageFolder(image_dir, transform=c_transforms)
+    content_dataset = ContentDataset(c_image_dir, content_selected_dir, c_transforms)
+    content_data_loader = data.DataLoader(dataset=content_dataset,batch_size=batch_size,
+                    drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
+
+    return style_data_loader,content_data_loader
 
 def denorm(x):
     out = (x + 1) / 2
