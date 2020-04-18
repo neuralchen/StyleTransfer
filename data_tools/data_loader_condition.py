@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 12:21:00 am
+# Last Modified:  Saturday, 18th April 2020 10:40:18 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -17,7 +17,8 @@ import torch
 import os
 import random
 from pathlib import Path
-from data_tools.StyleResize import StyleResize
+# from data_tools.StyleResize import StyleResize
+from StyleResize import StyleResize
 
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
@@ -48,7 +49,6 @@ class ArtDataset(data.Dataset):
 
     def __getitem__(self, index):
         """Return one image and its corresponding attribute label."""
-        # image = Image.open(os.path.join(self.image_dir, filename))
         filename,label = self.dataset[index]
         image = Image.open(filename)
         res   = self.transform(image)
@@ -92,26 +92,6 @@ class ContentDataset(data.Dataset):
         """Return one image and its corresponding attribute label."""
         filename = self.dataset[index]
         image = Image.open(filename)
-        # image = image.resize((image.size[0]*2,image.size[1]*2))
-        # # print("original size",image.size)
-        # if max(image.size) > 1800:
-        #     alpha = 1800. / float(min(image.size))
-        #     image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        # if max(image.size) < 800:
-        #     # Resize the smallest side of the image to 800px
-        #     alpha = 800. / float(min(image.size))
-        #     if alpha < 4.:
-        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        #     else:
-        #         image = image.resize((800,800))
-        # if min(image.size) < 800:
-        #     # Resize the smallest side of the image to 800px
-        #     alpha = 800. / float(min(image.size))
-        #     if alpha < 4.:
-        #         image = image.resize((int(image.size[0]*alpha), int(image.size[1]*alpha)))
-        #     else:
-        #         image = image.resize((800,800))
-        # print("after resize",image.size)
         res   = self.transform(image)
         return res
 
@@ -191,11 +171,12 @@ if __name__ == "__main__":
     datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art"
     # contentdatapath = "D:\\迅雷下载\\data_large"
     imsize          = 768
-    datasetloader   = getLoader(datapath, selected_attrs, imsize,16,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
+    datasetloader   = getLoader(datapath, selected_attrs, imsize,16,'Style',8,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
     wocao           = iter(datasetloader)
     for i in range(500):
         print("new batch")
         image,label     = next(wocao)
+        print(label)
         # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
         # save_image(denorm(image), "%d-style.jpg"%i, nrow=1, padding=1)
     pass
