@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 19th April 2020 11:51:29 pm
+# Last Modified:  Monday, 20th April 2020 12:33:47 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -142,7 +142,7 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                # start_time = time.time()
+                start_time = time.time()
                 try:
                     # content_images      = next(content_iter)
                     # style_images,label  = next(style_iter)
@@ -158,9 +158,9 @@ class Trainer(object):
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 label           = label.cuda()
-                # elapsed = time.time() - start_time
-                # elapsed = str(datetime.timedelta(seconds=elapsed))
-                # print("data load time %s"%elapsed)
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("data load time %s"%elapsed)
                 
                 # start_time = time.time()
                 d_out = Dis(style_images,label.long())
@@ -192,9 +192,9 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-                # elapsed = time.time() - start_time
-                # elapsed = str(datetime.timedelta(seconds=elapsed))
-                # print("inference time %s"%elapsed)
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("inference time %s"%elapsed)
             
             # ================== Train G ================== #
             for _ in range(gStep):
