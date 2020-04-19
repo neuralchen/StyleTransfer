@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 4:19:09 pm
+# Last Modified:  Sunday, 19th April 2020 10:22:27 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -13,15 +13,14 @@ import  platform
 import  os
 import  json
 import  shutil
-# from    parameters import getParameters
 from    utilities.reporter import Reporter
 from    utilities.json_config import *
 from    utilities.yaml_config import getConfigYaml
 from    utilities.sshupload import fileUploaderClass
-# from    train_scripts.trainer_styleaware1 import Trainer
 from    torch.backends import cudnn
 import  argparse
-from    data_tools.data_loader_backup import getLoader
+# from    data_tools.data_loader_backup import getLoader
+from    data_tools.data_loader_condition import getLoader
 
 def str2bool(v):
     return v.lower() in ('true')
@@ -31,13 +30,12 @@ def getParameters():
     # general
     parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
-    parser.add_argument('--dataloader_workers', type=int, default=6)
+    parser.add_argument('--dataloader_workers', type=int, default=4)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC512_ms_4')
+    parser.add_argument('--version', type=str, default='condition1')
     parser.add_argument('--experimentDescription', type=str, default="test if we can reduce the resblock number")
-    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512_multiscale.yaml")
-
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
     parser.add_argument('--nodeName', type=str, default='localhost',choices=['localhost', '4card', '8card','lyh','loc','localhost'])
@@ -272,8 +270,6 @@ if __name__ == '__main__':
         print("Batch size %d"%(sys_state["batchSize"]))
         print("Resblock number %d"%(sys_state["resNum"]))
         
-        import datetime
-        print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # Load the training script and start to train
         reporter.writeConfig(sys_state)
 
@@ -281,8 +277,6 @@ if __name__ == '__main__':
         style_loader,content_loader  = getLoader(sys_state["style"], sys_state["content"],
                             sys_state["selectedStyleDir"],sys_state["selectedContentDir"],
                             sys_state["imCropSize"], sys_state["batchSize"],sys_state["dataloader_workers"])
-        sys_state["style_dataloader"] = style_loader
-        sys_state["content_dataloader"] = content_loader
 
         package     = __import__(moduleName, fromlist=True)
         trainerClass= getattr(package, 'Trainer')

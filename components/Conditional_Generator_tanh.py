@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 11:47:31 am
+# Last Modified:  Sunday, 19th April 2020 1:43:48 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -21,11 +21,16 @@ from components.ResBlock import ResBlock
 from components.DeConv   import DeConv
 
 class Generator(nn.Module):
-    def __init__(self, chn=32, k_size=3, res_num = 5):
+    def __init__(
+                self, chn=32,
+                k_size=3,
+                res_num = 5,
+                class_num = 3
+                ):
         super().__init__()
         padding_size = int((k_size -1)/2)
         self.resblock_list = []
-
+        self.n_class    = class_num
         self.encoder = nn.Sequential(
             nn.ReplicationPad2d(15),
             # nn.InstanceNorm2d(3, affine=True),
@@ -55,20 +60,20 @@ class Generator(nn.Module):
             self.resblock_list += [ResBlock(res_size,k_size),]
         self.resblocks = nn.Sequential(*self.resblock_list)
         self.decoder = nn.Sequential(
-            DeConv(in_channels = chn * 8 , out_channels = chn * 8, kernel_size= k_size),
+            DeConv(in_channels = chn * 8+class_num, out_channels = chn * 8, kernel_size= k_size),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
             nn.ReLU(),
-            DeConv(in_channels = chn * 8 , out_channels = chn *4, kernel_size= k_size),
+            DeConv(in_channels = chn * 8, out_channels = chn *4, kernel_size= k_size),
             nn.InstanceNorm2d(chn *4, affine=True, momentum=0),
             nn.ReLU(),
-            DeConv(in_channels = chn * 4 , out_channels = chn * 2 , kernel_size= k_size),
+            DeConv(in_channels = chn * 4, out_channels = chn * 2 , kernel_size= k_size),
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
             nn.ReLU(),
-            DeConv(in_channels = chn * 2  , out_channels = chn, kernel_size= k_size),
+            DeConv(in_channels = chn * 2, out_channels = chn, kernel_size= k_size),
             nn.InstanceNorm2d(chn, affine=True, momentum=0),
             nn.ReLU(),
             nn.ReflectionPad2d(3),
-            nn.Conv2d(in_channels = chn , out_channels = 3, kernel_size= 7),
+            nn.Conv2d(in_channels = chn, out_channels = 3, kernel_size= 7),
             nn.Tanh()
         )
         self.__weights_init__()
@@ -78,10 +83,13 @@ class Generator(nn.Module):
             if isinstance(layer,nn.Conv2d):
                 nn.init.xavier_uniform_(layer.weight)
 
-    def forward(self, input, condition,get_feature = False):
+    def forward(self, input, condition=None,get_feature = False):
         feature = self.encoder(input)
         if get_feature:
             return feature
-        h = self.resblocks(feature)
-        h = self.decoder(h)
-        return h,feature
+        out = self.resblocks(feature)
+        n, _,h,w = out.size()
+        attr = condition.view((n, self.n_class, 1, 1)).expand((n, self.n_class, h, w))
+        out = torch.cat([out, attr], dim=1)
+        out = self.decoder(out)
+        return out,feature

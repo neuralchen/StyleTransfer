@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 3:46:48 pm
+# Last Modified:  Sunday, 19th April 2020 10:18:15 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -25,17 +25,15 @@ from    functools import partial
 from    data_tools.data_loader_condition import getLoader
 from    components.Transform import Transform_block
 from    utilities.utilities import denorm
-from    components.Generator import Generator
-from    components.Discriminator import Discriminator
 
 class Trainer(object):
-    def __init__(self, config, reporter):
+    def __init__(self, config, dataloaders_list, reporter):
 
         self.config     = config
         # logger
         self.reporter   = reporter
         # Data loader
-        
+        self.dataloaders= dataloaders_list
 
     def train(self):
         
@@ -48,26 +46,21 @@ class Trainer(object):
         lr_base     = self.config["gLr"]
         beta1       = self.config["beta1"]
         beta2       = self.config["beta2"]
-        lrDecayStep = self.config["lrDecayStep"]
+        # lrDecayStep = self.config["lrDecayStep"]
         batch_size  = self.config["batchSize"]
-        prep_weights= self.config["layersWeight"]
+        n_class     = len(self.config["selectedStyleDir"])
+        # prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
         # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
-        content_loader  = self.config["style_dataloader"]
-        style_loader    = self.config["content_dataloader"]
+        style_loader  = self.dataloaders[0]
+        content_loader= self.dataloaders[1]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
             tensorboard_writer = build_tensorboard(self.config["projectSummary"])
-
-        # print("prepare the dataloader...")
-        # content_loader  = getLoader(self.config["content"],self.config["selectedContentDir"],
-        #                     self.config["imCropSize"],batch_size,"Content",workers)
-        # style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-        #                     self.config["imCropSize"],batch_size,"Style",workers)
         
         print("build models...")
 
@@ -129,7 +122,16 @@ class Trainer(object):
         content_iter    = iter(content_loader)
         style_iter      = iter(style_loader)
 
+        print("prepare the fixed labels...")
+        fix_label       = [i for i in range(n_class)]
+        fix_label       = torch.tensor(fix_label).cuda()
+        fix_label       = fix_label.view(n_class,1)
+        fix_label       = torch.zeros(n_class, n_class).cuda().scatter_(1, fix_label, 1)
+
         # Start time
+        import datetime
+        print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        
         print('Start   ======  training...')
         start_time = time.time()
         for step in range(start, total_step):
@@ -139,18 +141,24 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
+                start_time = time.time()
                 try:
                     content_images      = next(content_iter)
-                    style_images, label = next(style_iter)
+                    style_images,label  = next(style_iter)
                 except:
                     style_iter          = iter(style_loader)
                     content_iter        = iter(content_loader)
-                    style_images, label = next(style_iter)
+                    style_images,label  = next(style_iter)
                     content_images      = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
+                label           = label.cuda()
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("data load time %s"%elapsed)
                 
-                d_out = Dis(style_images)
+                start_time = time.time()
+                d_out = Dis(style_images,label.long())
                 d_loss_real = 0
                 for i in range(output_size):
                     temp = Hinge_loss(1 - d_out[i]).mean()
@@ -158,14 +166,16 @@ class Trainer(object):
                     d_loss_real += temp
 
                 d_loss_photo = 0
-                d_out = Dis(content_images)
+                d_out = Dis(content_images,label.long())
                 for i in range(output_size):
                     temp = Hinge_loss(1 + d_out[i]).mean()
                     # temp *= prep_weights[i]
                     d_loss_photo += temp
 
-                fake_image,_ = Gen(content_images)
-                d_out = Dis(fake_image.detach())
+                label        = label.view(batch_size,1)
+                style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
+                fake_image,_ = Gen(content_images,style_labels)
+                d_out = Dis(fake_image.detach(),label.long())
                 d_loss_fake = 0
                 for i in range(output_size):
                     temp = Hinge_loss(1 + d_out[i]).mean()
@@ -177,6 +187,9 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("inference time %s"%elapsed)
             
             # ================== Train G ================== #
             for _ in range(gStep):
@@ -186,10 +199,12 @@ class Trainer(object):
                     content_iter    = iter(content_loader)
                     content_images  = next(content_iter)
                     
-                content_images  = content_images.cuda()     
-                fake_image,real_feature = Gen(content_images)
+                content_images  = content_images.cuda()
+                label     = label.view(batch_size,1)
+                style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
+                fake_image,real_feature = Gen(content_images,style_labels)
                 fake_feature            = Gen(fake_image, get_feature=True)
-                d_out                   = Dis(fake_image)
+                d_out                   = Dis(fake_image,label.long())
                 
                 g_feature_loss          = L1_loss(fake_feature,real_feature)
                 g_transform_loss        = MSE_loss(Transform(content_images), Transform(fake_image))
@@ -227,12 +242,13 @@ class Trainer(object):
                 print('Sample images {}_fake.jpg'.format(step + 1))
                 Gen.eval()
                 with torch.no_grad():
-                    fake_images,_ = Gen(content_images)
-                    saved_image1 = torch.cat([denorm(content_images),denorm(fake_images.data),denorm(style_images)],3)
+                    
+                    fake_images,_ = Gen(content_images[:n_class,:,:,:], fix_label)
+                    saved_image1 = torch.cat([denorm(content_images[:n_class,:,:,:]),denorm(fake_images.data)],3)
                     # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
                     # wocao        = torch.cat([saved_image1,saved_image2],2)
                     save_image(saved_image1,
-                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=2)
+                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=3)
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:

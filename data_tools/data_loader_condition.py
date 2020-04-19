@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 1:54:33 pm
+# Last Modified:  Sunday, 19th April 2020 10:35:25 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -18,8 +18,8 @@ from pathlib import Path
 from torch.utils import data
 import torchvision.datasets as dsets
 from torchvision import transforms as T
-# from data_tools.StyleResize import StyleResize
-from StyleResize import StyleResize
+from data_tools.StyleResize import StyleResize
+# from StyleResize import StyleResize
 
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""
@@ -31,18 +31,22 @@ class ArtDataset(data.Dataset):
         self.selectedClasses = selectedClasses
         self.subffix    = subffix
         self.dataset    = []
+        # self.label      = [0 for i in range(len(selectedClasses))]
         self.random_seed= random_seed
         self.preprocess()
         self.num_images = len(self.dataset)
 
     def preprocess(self):
         """Preprocess the Artworks dataset."""
-        label = 0
+        label_index = 0
         for class_item in self.selectedClasses:
             images = Path(self.image_dir).glob('%s/*.%s'%(class_item, self.subffix))
+            # label  = [0 for i in range(len(self.selectedClasses))]
+            # label  = torch.zeros(3)
+            # label[label_index] = 1
             for item in images:
-                self.dataset.append([item, label])
-            label += 1
+                self.dataset.append([item, label_index])
+            label_index += 1
         random.seed(self.random_seed)
         random.shuffle(self.dataset)
         # self.dataset = images
@@ -100,18 +104,25 @@ class ContentDataset(data.Dataset):
         """Return the number of images."""
         return self.num_images
 
-def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_name='Style', num_workers=8, colorJitterEnable=True, 
-                                    colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
+def getLoader(s_image_dir,c_image_dir, 
+                style_selected_dir, content_selected_dir,
+                crop_size=178, batch_size=16, num_workers=8, 
+                colorJitterEnable=True, colorConfig={"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05}):
     """Build and return a data loader."""
-    transforms = []
-    if dataset_name=="Style":
-        transforms.append(StyleResize())
-    else:
-        transforms.append(T.Resize(800))
-    transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
-    transforms.append(T.RandomHorizontalFlip())
-    transforms.append(T.RandomVerticalFlip())
-    # colorBrightness = 0.01
+    s_transforms = []
+    c_transforms = []
+    
+    s_transforms.append(StyleResize())
+    c_transforms.append(T.Resize(800))
+
+    s_transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
+    c_transforms.append(T.RandomCrop(crop_size))
+
+    s_transforms.append(T.RandomHorizontalFlip())
+    c_transforms.append(T.RandomHorizontalFlip())
+    
+    s_transforms.append(T.RandomVerticalFlip())
+    c_transforms.append(T.RandomVerticalFlip())
 
     if colorJitterEnable:
         if colorConfig is not None:
@@ -120,23 +131,30 @@ def getLoader(image_dir, selected_dir, crop_size=178, batch_size=16, dataset_nam
             colorContrast   = colorConfig["contrast"]
             colorSaturation = colorConfig["saturation"]
             colorHue        = (-colorConfig["hue"],colorConfig["hue"])
-            transforms.append(T.ColorJitter(brightness=colorBrightness,\
+            s_transforms.append(T.ColorJitter(brightness=colorBrightness,\
                                 contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
-    # transform.append(T.Resize(image_size,interpolation=PIL.Image.BICUBIC))
-    transforms.append(T.ToTensor())
-    transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
-    transforms = T.Compose(transforms)
+            c_transforms.append(T.ColorJitter(brightness=colorBrightness,\
+                                contrast=colorContrast,saturation=colorSaturation, hue=colorHue))
+    s_transforms.append(T.ToTensor())
+    c_transforms.append(T.ToTensor())
 
-    if dataset_name.lower() == 'style':
-        # dataset = ArtDataset(image_dir, selected_dir, transforms)
-        dataset = dsets.ImageFolder(image_dir, transform=transforms)
-    if dataset_name.lower() == 'content':
-        dataset = ContentDataset(image_dir, selected_dir, transforms)
-    # elif dataset.lower() == 'Content':
-    #     dataset = CelebA(image_dir, attr_path, selected_attrs, 
-    #         transform, mode,batch_size,image_size,toPatch,microPatchSize)
-    data_loader = data.DataLoader(dataset=dataset,batch_size=batch_size,drop_last=True,shuffle=False,num_workers=num_workers,pin_memory=True)
-    return data_loader
+    s_transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+    c_transforms.append(T.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
+    
+    s_transforms = T.Compose(s_transforms)
+    c_transforms = T.Compose(c_transforms)
+
+    # style_dataset = ArtDataset(s_image_dir, style_selected_dir, s_transforms)
+    style_dataset = dsets.ImageFolder(s_image_dir, transform=s_transforms)
+    style_data_loader = data.DataLoader(dataset=style_dataset,batch_size=batch_size,
+                    drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
+        
+    # content_dataset = dsets.ImageFolder(c_image_dir, transform=c_transforms)
+    content_dataset = ContentDataset(c_image_dir, content_selected_dir, c_transforms)
+    content_data_loader = data.DataLoader(dataset=content_dataset,batch_size=batch_size,
+                    drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
+
+    return style_data_loader, content_data_loader
 
 def denorm(x):
     out = (x + 1) / 2
@@ -144,7 +162,7 @@ def denorm(x):
 
 if __name__ == "__main__":
     from torchvision.utils import save_image
-    selected_attrs  = ["vangogh","picasso","samuel"]
+    style_class  = ["vangogh","picasso","samuel"]
     categories_names = \
         ['a/abbey', 'a/arch', 'a/amphitheater', 'a/aqueduct', 'a/arena/rodeo', 'a/athletic_field/outdoor',
          'b/badlands', 'b/balcony/exterior', 'b/bamboo_forest', 'b/barn', 'b/barndoor', 'b/baseball_field',
@@ -170,18 +188,22 @@ if __name__ == "__main__":
          'w/wheat_field', 'z/zen_garden', 'a/alcove', 'a/apartment-building/outdoor', 'a/artists_loft',
          'b/building_facade', 'c/cemetery']
 
-    datapath        = "D:\\F_Disk\\data_set\\Art_Data\\data_art_backup"
+    s_datapath      = "D:\\F_Disk\\data_set\\Art_Data\\data_art_backup"
+    c_datapath      = "D:\\Downloads\\data_large"
     savepath        = "D:\\PatchFace\\PleaseWork\\multi-style-gan\\StyleTransfer\\dataloader_test"
-    # contentdatapath = "D:\\迅雷下载\\data_large"
+    
     imsize          = 512
-    datasetloader   = getLoader(datapath, selected_attrs, imsize,1,'Style',0,True , {"brightness":0.05,"contrast":0.05,"saturation":0.05,"hue":0.05})
-    wocao           = iter(datasetloader)
+    s_datasetloader, c_datapath = getLoader(s_datapath,c_datapath, 
+                style_class, categories_names,
+                crop_size=imsize, batch_size=1, num_workers=1)
+    wocao           = iter(s_datasetloader)
     for i in range(500):
         print("new batch")
         image,label     = next(wocao)
+        print(label)
         # print(label)
         # saved_image1 = torch.cat([denorm(image.data),denorm(hahh.data)],3)
-        save_image(denorm(image), "%s\\%d-label-%d.jpg"%(savepath,i,label), nrow=1, padding=1)
+        # save_image(denorm(image), "%s\\%d-label-%d.jpg"%(savepath,i), nrow=1, padding=1)
     pass
     # import cv2
     # import os

@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 4:04:19 pm
+# Last Modified:  Saturday, 18th April 2020 11:57:53 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -50,11 +50,9 @@ class Trainer(object):
         beta1       = self.config["beta1"]
         beta2       = self.config["beta2"]
         # lrDecayStep = self.config["lrDecayStep"]
-        # batch_size  = self.config["batchSize"]
         # prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
-        # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
 
@@ -64,13 +62,6 @@ class Trainer(object):
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
             tensorboard_writer = build_tensorboard(self.config["projectSummary"])
-
-        # print("prepare the dataloader...")
-        # style_loader,content_loader  = getLoader(self.config["style"], self.config["content"],
-        #                     self.config["selectedStyleDir"],self.config["selectedContentDir"],
-        #                     self.config["imCropSize"], batch_size,workers)
-        # style_loader    = getLoader(self.config["style"],self.config["selectedStyleDir"],
-        #                     self.config["imCropSize"],batch_size,"Style",workers)
         
         print("build models...")
 
@@ -88,11 +79,10 @@ class Trainer(object):
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
-        # Gen     = Generator(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
-        # Dis     = Discriminator(self.config["DConvDim"], self.config["DKS"])
+
         self.reporter.writeInfo("Generator structure:")
         self.reporter.writeModel(Gen.__str__())
-        # print(self.Decoder)
+
         self.reporter.writeInfo("Discriminator structure:")
         self.reporter.writeModel(Dis.__str__())
         
@@ -134,6 +124,8 @@ class Trainer(object):
         style_iter      = iter(style_loader)
 
         # Start time
+        import datetime
+        print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         print('Start   ======  training...')
         start_time = time.time()
         for step in range(start, total_step):
@@ -143,21 +135,21 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                # start_time = time.time()
+                start_time = time.time()
                 try:
-                    content_images = next(content_iter)
-                    style_images,_ = next(style_iter)
+                    content_images  = next(content_iter)
+                    style_images    = next(style_iter)
                 except:
                     style_iter      = iter(style_loader)
                     content_iter    = iter(content_loader)
-                    style_images,_  = next(style_iter)
+                    style_images    = next(style_iter)
                     content_images  = next(content_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
 
-                # elapsed = time.time() - start_time
-                # elapsed = str(datetime.timedelta(seconds=elapsed))
-                # print("data load time %s"%elapsed)
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("data load time %s"%elapsed)
 
                 # start_time = time.time()
                 d_out = Dis(style_images)
@@ -193,11 +185,11 @@ class Trainer(object):
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
-                    content_images =next(content_iter)
+                    content_images  = next(content_iter)
                 except:
                     content_iter    = iter(content_loader)
                     content_images  = next(content_iter)
-                content_images  = content_images.cuda()     
+                content_images      = content_images.cuda()     
                 fake_image,real_feature = Gen(content_images)
                 fake_feature            = Gen(fake_image, get_feature = True)
                 d_out                   = Dis(fake_image)
@@ -220,7 +212,7 @@ class Trainer(object):
             if (step + 1) % log_frep == 0:
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("V[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
+                print("[{}], Elapsed [{}], G_step [{}/{}], D_step[{}/{}], d_out_real: {:.4f}, d_out_fake: {:.4f}, g_loss_fake: {:.4f}".
                       format(self.config["version"],elapsed, step + 1, total_step, (step + 1),
                              total_step , d_loss_real.item(), d_loss_fake.item(), g_loss_fake.item()))
                 
@@ -256,6 +248,7 @@ class Trainer(object):
                 # save_image(denorm(displaymask.data),os.path.join(self.sample_path, '{}_mask.png'.format(step + 1)))
 
             if (step+1) % model_freq==0:
+                print("Save step %d checkpoint..."%(step+1))
                 torch.save(Gen.state_dict(),
                            os.path.join(ckpt_dir, '{}_Generator.pth'.format(step + 1)))
                 torch.save(Dis.state_dict(),

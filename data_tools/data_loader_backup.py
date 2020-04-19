@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 3:32:56 pm
+# Last Modified:  Sunday, 19th April 2020 10:34:27 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -59,11 +59,11 @@ class ArtDataset(data.Dataset):
 class ContentDataset(data.Dataset):
     """Dataset class for the Content dataset."""
 
-    def __init__(self, image_dir, selectedClass, transform, subffix='jpg', random_seed=1234):
+    def __init__(self, image_dir, selectedDirs, transform, subffix='jpg', random_seed=1234):
         """Initialize and preprocess the Content dataset."""
         self.image_dir  = image_dir
         self.transform  = transform
-        self.selectedClass = selectedClass
+        self.selectedDirs = selectedDirs
         self.subffix    = subffix
         self.dataset    = []
         self.random_seed= random_seed
@@ -72,10 +72,11 @@ class ContentDataset(data.Dataset):
 
     def preprocess(self):
         """Preprocess the Content dataset."""
-        for dir_item in self.selectedClass:
-            join_path = Path(self.image_dir,dir_item)
+        for dir_item in self.selectedDirs:
+            dir_item  = dir_item.replace('/','_')
+            join_path = Path(self.image_dir, dir_item)
             if join_path.exists():
-                print("processing %s"%dir_item,end='\r')
+                print("processing %s"%dir_item, end='\r')
                 images = join_path.glob('*.%s'%(self.subffix))
                 for item in images:
                     self.dataset.append(item)
@@ -137,16 +138,17 @@ def getLoader(s_image_dir,c_image_dir,
     s_transforms = T.Compose(s_transforms)
     c_transforms = T.Compose(c_transforms)
 
+    # style_dataset = ArtDataset(s_image_dir, style_selected_dir, s_transforms)
     style_dataset = dsets.ImageFolder(s_image_dir, transform=s_transforms)
     style_data_loader = data.DataLoader(dataset=style_dataset,batch_size=batch_size,
                     drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
         
-    # content_dataset = dsets.ImageFolder(image_dir, transform=c_transforms)
+    # content_dataset = dsets.ImageFolder(c_image_dir, transform=c_transforms)
     content_dataset = ContentDataset(c_image_dir, content_selected_dir, c_transforms)
     content_data_loader = data.DataLoader(dataset=content_dataset,batch_size=batch_size,
                     drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
 
-    return style_data_loader,content_data_loader
+    return style_data_loader ,content_data_loader
 
 def denorm(x):
     out = (x + 1) / 2
