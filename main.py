@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 19th April 2020 10:22:27 pm
+# Last Modified:  Sunday, 19th April 2020 11:40:20 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -20,7 +20,7 @@ from    utilities.sshupload import fileUploaderClass
 from    torch.backends import cudnn
 import  argparse
 # from    data_tools.data_loader_backup import getLoader
-from    data_tools.data_loader_condition import getLoader
+from    data_tools.data_loader_condition_final import getLoader
 
 def str2bool(v):
     return v.lower() in ('true')
@@ -30,7 +30,7 @@ def getParameters():
     # general
     parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
-    parser.add_argument('--dataloader_workers', type=int, default=4)
+    parser.add_argument('--dataloader_workers', type=int, default=6)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
     parser.add_argument('--version', type=str, default='condition1')
@@ -274,12 +274,15 @@ if __name__ == '__main__':
         reporter.writeConfig(sys_state)
 
         print("prepare the dataloader...")
-        style_loader,content_loader  = getLoader(sys_state["style"], sys_state["content"],
+        # style_loader,content_loader  = getLoader(sys_state["style"], sys_state["content"],
+        #                     sys_state["selectedStyleDir"],sys_state["selectedContentDir"],
+        #                     sys_state["imCropSize"], sys_state["batchSize"],sys_state["dataloader_workers"])
+        total_loader  = getLoader(sys_state["style"], sys_state["content"],
                             sys_state["selectedStyleDir"],sys_state["selectedContentDir"],
                             sys_state["imCropSize"], sys_state["batchSize"],sys_state["dataloader_workers"])
 
         package     = __import__(moduleName, fromlist=True)
         trainerClass= getattr(package, 'Trainer')
-        trainer     = trainerClass(sys_state, [style_loader, content_loader],reporter)
+        trainer     = trainerClass(sys_state, total_loader,reporter)
         # trainer  = Trainer(sys_state,reporter)
         trainer.train()

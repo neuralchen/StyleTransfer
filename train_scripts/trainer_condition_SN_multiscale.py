@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 19th April 2020 10:18:15 pm
+# Last Modified:  Sunday, 19th April 2020 11:51:29 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -55,8 +55,9 @@ class Trainer(object):
         # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
-        style_loader  = self.dataloaders[0]
-        content_loader= self.dataloaders[1]
+        # style_loader  = self.dataloaders[0]
+        # content_loader= self.dataloaders[1]
+        total_loader  = self.dataloaders
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -119,8 +120,8 @@ class Trainer(object):
         
         # Data iterator
         print("prepare the dataloaders...")
-        content_iter    = iter(content_loader)
-        style_iter      = iter(style_loader)
+        total_iter    = iter(total_loader)
+        # style_iter      = iter(style_loader)
 
         print("prepare the fixed labels...")
         fix_label       = [i for i in range(n_class)]
@@ -141,23 +142,27 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                start_time = time.time()
+                # start_time = time.time()
                 try:
-                    content_images      = next(content_iter)
-                    style_images,label  = next(style_iter)
+                    # content_images      = next(content_iter)
+                    # style_images,label  = next(style_iter)
+                    content_images,style_images,label  = next(total_iter) 
                 except:
-                    style_iter          = iter(style_loader)
-                    content_iter        = iter(content_loader)
-                    style_images,label  = next(style_iter)
-                    content_images      = next(content_iter)
+                    # style_iter          = iter(style_loader)
+                    # content_iter        = iter(content_loader)
+                    # style_images,label  = next(style_iter)
+                    # content_images      = next(content_iter)
+                    total_iter    = iter(total_loader)
+                    content_images,style_images,label  = next(total_iter) 
+
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 label           = label.cuda()
-                elapsed = time.time() - start_time
-                elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("data load time %s"%elapsed)
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("data load time %s"%elapsed)
                 
-                start_time = time.time()
+                # start_time = time.time()
                 d_out = Dis(style_images,label.long())
                 d_loss_real = 0
                 for i in range(output_size):
@@ -187,21 +192,27 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-                elapsed = time.time() - start_time
-                elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("inference time %s"%elapsed)
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("inference time %s"%elapsed)
             
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
-                    content_images  =next(content_iter)
+                    # content_images      = next(content_iter)
+                    # style_images,label  = next(style_iter)
+                    content_images,_,_  = next(total_iter) 
                 except:
-                    content_iter    = iter(content_loader)
-                    content_images  = next(content_iter)
+                    # style_iter          = iter(style_loader)
+                    # content_iter        = iter(content_loader)
+                    # style_images,label  = next(style_iter)
+                    # content_images      = next(content_iter)
+                    total_iter    = iter(total_loader)
+                    content_images,_,_  = next(total_iter) 
                     
                 content_images  = content_images.cuda()
                 label     = label.view(batch_size,1)
-                style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
+                # style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
                 fake_image,real_feature = Gen(content_images,style_labels)
                 fake_feature            = Gen(fake_image, get_feature=True)
                 d_out                   = Dis(fake_image,label.long())
