@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 19th April 2020 1:43:48 am
+# Last Modified:  Monday, 20th April 2020 6:56:45 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -19,6 +19,7 @@ from torch.nn import functional as F
 
 from components.ResBlock import ResBlock
 from components.DeConv   import DeConv
+from components.Conditional_ResBlock import Conditional_ResBlock
 
 class Generator(nn.Module):
     def __init__(
@@ -56,11 +57,12 @@ class Generator(nn.Module):
             nn.ReLU(),
         )
         res_size = chn * 8
-        for _ in range(res_num):
+        for _ in range(res_num-1):
             self.resblock_list += [ResBlock(res_size,k_size),]
         self.resblocks = nn.Sequential(*self.resblock_list)
+        self.conditional_res = Conditional_ResBlock(res_size, k_size, class_num)
         self.decoder = nn.Sequential(
-            DeConv(in_channels = chn * 8+class_num, out_channels = chn * 8, kernel_size= k_size),
+            DeConv(in_channels = chn * 8, out_channels = chn * 8, kernel_size= k_size),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
             nn.ReLU(),
             DeConv(in_channels = chn * 8, out_channels = chn *4, kernel_size= k_size),
@@ -88,8 +90,9 @@ class Generator(nn.Module):
         if get_feature:
             return feature
         out = self.resblocks(feature)
-        n, _,h,w = out.size()
-        attr = condition.view((n, self.n_class, 1, 1)).expand((n, self.n_class, h, w))
-        out = torch.cat([out, attr], dim=1)
+        out = self.conditional_res(out, condition)
+        # n, _,h,w = out.size()
+        # attr = condition.view((n, self.n_class, 1, 1)).expand((n, self.n_class, h, w))
+        # out = torch.cat([out, attr], dim=1)
         out = self.decoder(out)
         return out,feature

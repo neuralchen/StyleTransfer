@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 12:53:16 am
+# Last Modified:  Monday, 20th April 2020 7:23:13 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -48,7 +48,7 @@ class TotalDataset(data.Dataset):
         """Preprocess the Artworks dataset."""
         print("processing content images...")
         for dir_item in self.selectedContent:
-            join_path = Path(self.content_image_dir,dir_item.replace('/','_'))
+            join_path = Path(self.content_image_dir,dir_item)#.replace('/','_'))
             if join_path.exists():
                 print("processing %s"%dir_item,end='\r')
                 images = join_path.glob('*.%s'%(self.subffix))

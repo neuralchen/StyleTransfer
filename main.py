@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 12:53:59 am
+# Last Modified:  Monday, 20th April 2020 7:26:42 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -30,12 +30,12 @@ def getParameters():
     # general
     parser.add_argument('--mode', type=str, default="train", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
-    parser.add_argument('--dataloader_workers', type=int, default=8)
+    parser.add_argument('--dataloader_workers', type=int, default=6)
     parser.add_argument('--checkpoint', type=int, default=126000)
     # training
-    parser.add_argument('--version', type=str, default='SN-FC512_ms_4')
+    parser.add_argument('--version', type=str, default='condition1')
     parser.add_argument('--experimentDescription', type=str, default="test if we can reduce the resblock number")
-    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_512_multiscale.yaml")
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
     parser.add_argument('--nodeName', type=str, default='localhost',choices=['localhost', '4card', '8card','lyh','loc','localhost'])
@@ -52,7 +52,7 @@ def getParameters():
 def create_dirs(sys_state):
     # the base dir
     if not os.path.exists(sys_state["logRootPath"]):
-            os.makedirs(sys_state["logRootPath"])
+        os.makedirs(sys_state["logRootPath"])
 
     # create dirs
     sys_state["projectRoot"]        = os.path.join(sys_state["logRootPath"], sys_state["version"])

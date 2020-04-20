@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 # from ops.Conditional_BN import Conditional_BN
-from ops.Adain import Adain
+from components.Adain import Adain
 
 class Conditional_ResBlock(nn.Module):
     def __init__(self, in_channel, k_size = 3, n_class = 2, stride=1):

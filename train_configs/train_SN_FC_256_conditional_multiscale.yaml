@@ -46,7 +46,7 @@ lrDecayStep: 100
 lrDecayEnable: True
 beta1: 0.9
 beta2: 0.999
-dStep: 3
+dStep: 2
 gStep: 1
 featureWeight: 100.0
 transformWeight: 100.0

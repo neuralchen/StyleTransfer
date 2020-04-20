@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 12:40:01 am
+# Last Modified:  Monday, 20th April 2020 7:24:49 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -125,9 +125,9 @@ class Trainer(object):
 
         print("prepare the fixed labels...")
         fix_label       = [i for i in range(n_class)]
-        fix_label       = torch.tensor(fix_label).cuda()
-        fix_label       = fix_label.view(n_class,1)
-        fix_label       = torch.zeros(n_class, n_class).cuda().scatter_(1, fix_label, 1)
+        fix_label       = torch.tensor(fix_label).long().cuda()
+        # fix_label       = fix_label.view(n_class,1)
+        # fix_label       = torch.zeros(n_class, n_class).cuda().scatter_(1, fix_label, 1)
 
         # Start time
         import datetime
@@ -154,7 +154,8 @@ class Trainer(object):
                     # content_images      = next(content_iter)
                     total_iter    = iter(total_loader)
                     content_images,style_images,label  = next(total_iter) 
-
+                # label           = label.view(batch_size,1)
+                label           = label.long()
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
                 label           = label.cuda()
@@ -163,7 +164,7 @@ class Trainer(object):
                 # print("data load time %s"%elapsed)
                 
                 # start_time = time.time()
-                d_out = Dis(style_images,label.long())
+                d_out = Dis(style_images,label)
                 d_loss_real = 0
                 for i in range(output_size):
                     temp = Hinge_loss(1 - d_out[i]).mean()
@@ -171,16 +172,16 @@ class Trainer(object):
                     d_loss_real += temp
 
                 d_loss_photo = 0
-                d_out = Dis(content_images,label.long())
+                d_out = Dis(content_images,label)
                 for i in range(output_size):
                     temp = Hinge_loss(1 + d_out[i]).mean()
                     # temp *= prep_weights[i]
                     d_loss_photo += temp
 
-                label        = label.view(batch_size,1)
-                style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
-                fake_image,_ = Gen(content_images,style_labels)
-                d_out = Dis(fake_image.detach(),label.long())
+                # label        = label.view(batch_size,1)
+                # style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
+                fake_image,_ = Gen(content_images,label)
+                d_out = Dis(fake_image.detach(),label)
                 d_loss_fake = 0
                 for i in range(output_size):
                     temp = Hinge_loss(1 + d_out[i]).mean()
@@ -211,9 +212,10 @@ class Trainer(object):
                     content_images,_,_  = next(total_iter) 
                     
                 content_images  = content_images.cuda()
-                label     = label.view(batch_size,1)
+                # label     = label.view(batch_size,1)
                 # style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
-                fake_image,real_feature = Gen(content_images,style_labels)
+                # fake_image,real_feature = Gen(content_images,style_labels)
+                fake_image,real_feature = Gen(content_images,label)
                 fake_feature            = Gen(fake_image, get_feature=True)
                 d_out                   = Dis(fake_image,label.long())
                 
