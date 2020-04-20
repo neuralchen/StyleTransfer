@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 11:57:53 pm
+# Last Modified:  Monday, 20th April 2020 1:02:39 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -55,9 +55,9 @@ class Trainer(object):
         transform_w = self.config["transformWeight"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
-
-        style_loader  = self.dataloaders[0]
-        content_loader= self.dataloaders[1]
+        total_loader  = self.dataloaders
+        # style_loader  = self.dataloaders[0]
+        # content_loader= self.dataloaders[1]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -120,8 +120,9 @@ class Trainer(object):
         
         # Data iterator
         print("prepare the dataloaders...")
-        content_iter    = iter(content_loader)
-        style_iter      = iter(style_loader)
+        total_iter    = iter(total_loader)
+        # content_iter    = iter(content_loader)
+        # style_iter      = iter(style_loader)
 
         # Start time
         import datetime
@@ -135,21 +136,24 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                start_time = time.time()
+                # start_time = time.time()
                 try:
-                    content_images  = next(content_iter)
-                    style_images    = next(style_iter)
+                    # content_images      = next(content_iter)
+                    # style_images,label  = next(style_iter)
+                    content_images,style_images,_  = next(total_iter) 
                 except:
-                    style_iter      = iter(style_loader)
-                    content_iter    = iter(content_loader)
-                    style_images    = next(style_iter)
-                    content_images  = next(content_iter)
+                    # style_iter          = iter(style_loader)
+                    # content_iter        = iter(content_loader)
+                    # style_images,label  = next(style_iter)
+                    # content_images      = next(content_iter)
+                    total_iter    = iter(total_loader)
+                    content_images,style_images,_  = next(total_iter)
                 style_images    = style_images.cuda()
                 content_images  = content_images.cuda()
 
-                elapsed = time.time() - start_time
-                elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("data load time %s"%elapsed)
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("data load time %s"%elapsed)
 
                 # start_time = time.time()
                 d_out = Dis(style_images)
@@ -185,10 +189,16 @@ class Trainer(object):
             # ================== Train G ================== #
             for _ in range(gStep):
                 try:
-                    content_images  = next(content_iter)
+                    # content_images      = next(content_iter)
+                    # style_images,label  = next(style_iter)
+                    content_images,_,_  = next(total_iter) 
                 except:
-                    content_iter    = iter(content_loader)
-                    content_images  = next(content_iter)
+                    # style_iter          = iter(style_loader)
+                    # content_iter        = iter(content_loader)
+                    # style_images,label  = next(style_iter)
+                    # content_images      = next(content_iter)
+                    total_iter    = iter(total_loader)
+                    content_images,_,_  = next(total_iter)
                 content_images      = content_images.cuda()     
                 fake_image,real_feature = Gen(content_images)
                 fake_feature            = Gen(fake_image, get_feature = True)

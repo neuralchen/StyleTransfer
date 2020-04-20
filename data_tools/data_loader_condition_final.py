@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Sunday, 19th April 2020 11:40:17 pm
+# Last Modified:  Monday, 20th April 2020 12:53:16 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -48,7 +48,7 @@ class TotalDataset(data.Dataset):
         """Preprocess the Artworks dataset."""
         print("processing content images...")
         for dir_item in self.selectedContent:
-            join_path = Path(self.content_image_dir,dir_item)
+            join_path = Path(self.content_image_dir,dir_item.replace('/','_'))
             if join_path.exists():
                 print("processing %s"%dir_item,end='\r')
                 images = join_path.glob('*.%s'%(self.subffix))
@@ -85,47 +85,6 @@ class TotalDataset(data.Dataset):
         """Return the number of images."""
         return self.num_images
 
-class ContentDataset(data.Dataset):
-    """Dataset class for the Content dataset."""
-
-    def __init__(self, image_dir, selectedClass, transform, subffix='jpg', random_seed=1234):
-        """Initialize and preprocess the Content dataset."""
-        self.image_dir  = image_dir
-        self.transform  = transform
-        self.selectedClass = selectedClass
-        self.subffix    = subffix
-        self.dataset    = []
-        self.random_seed= random_seed
-        self.preprocess()
-        self.num_images = len(self.dataset)
-
-    def preprocess(self):
-        """Preprocess the Content dataset."""
-        for dir_item in self.selectedClass:
-            join_path = Path(self.image_dir,dir_item)
-            if join_path.exists():
-                print("processing %s"%dir_item,end='\r')
-                images = join_path.glob('*.%s'%(self.subffix))
-                for item in images:
-                    self.dataset.append(item)
-            else:
-                print("%s dir does not exist!"%dir_item,end='\r')
-        # self.dataset = images
-        random.seed(self.random_seed)
-        random.shuffle(self.dataset)
-        print('Finished preprocessing the Content dataset, total image number: %d...'%len(self.dataset))
-
-    def __getitem__(self, index):
-        """Return one image and its corresponding attribute label."""
-        filename = self.dataset[index]
-        image = Image.open(filename)
-        res   = self.transform(image)
-        return res
-
-    def __len__(self):
-        """Return the number of images."""
-        return self.num_images
-
 def getLoader(s_image_dir,c_image_dir, 
                 style_selected_dir, content_selected_dir,
                 crop_size=178, batch_size=16, num_workers=8, 
@@ -135,7 +94,7 @@ def getLoader(s_image_dir,c_image_dir,
     c_transforms = []
     
     s_transforms.append(StyleResize())
-    c_transforms.append(T.Resize(800))
+    c_transforms.append(T.Resize(900))
 
     s_transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
     c_transforms.append(T.RandomCrop(crop_size))
@@ -166,12 +125,6 @@ def getLoader(s_image_dir,c_image_dir,
     s_transforms = T.Compose(s_transforms)
     c_transforms = T.Compose(c_transforms)
 
-    # style_dataset = ArtDataset(s_image_dir, style_selected_dir, s_transforms)
-    # style_dataset = dsets.ImageFolder(s_image_dir, transform=s_transforms)
-    # style_data_loader = data.DataLoader(dataset=style_dataset,batch_size=batch_size,
-    #                 drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
-        
-    # content_dataset = dsets.ImageFolder(c_image_dir, transform=c_transforms)
     content_dataset = TotalDataset(c_image_dir,s_image_dir, content_selected_dir, style_selected_dir
                         , c_transforms,s_transforms)
     content_data_loader = data.DataLoader(dataset=content_dataset,batch_size=batch_size,
