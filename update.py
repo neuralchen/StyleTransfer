@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 6:50:26 pm
+# Last Modified:  Monday, 20th April 2020 12:57:02 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -14,10 +14,16 @@ from pathlib import Path
 import json
 from utilities.sshupload import fileUploaderClass
 
+ssh_ip = "192.168.101.57"
+ssh_username = "gdp"
+ssh_passwd = "glass123456"
+ssh_port = 22
+root_path = "/home/gdp/CXH/StyleTransfer"
+
 scan_config={
     "white_list":["py","yaml"],
-    "ignore_dir":["test_logs","train_logs",".vscode"],
-    "ignore_file":[".gitignore","LICENSE","README.md","*.jpg","*.png","*.JPG","*.JPEG","*.PNG","*.pyc"],
+    # "ignore_dir":["test_logs","train_logs",".vscode"],
+    # "ignore_file":[".gitignore","LICENSE","README.md","*.jpg","*.png","*.JPG","*.JPEG","*.PNG","*.pyc"],
 }
 
 if __name__ == "__main__":
@@ -60,9 +66,9 @@ if __name__ == "__main__":
         cf.writelines(configjson)
     
     print(changed_files)
-    root_path = "/home/gdp/CXH/StyleTransfer"
+    
 
-    remotemachine = fileUploaderClass("192.168.101.57","gdp","glass123456")
+    remotemachine = fileUploaderClass(ssh_ip,ssh_username,ssh_passwd,ssh_port)
     for item in changed_files:
         localfile = item
         print("here %s"%item)

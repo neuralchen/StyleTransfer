@@ -9,11 +9,11 @@ import paramiko,os
 # ssh传输类：
 
 class fileUploaderClass(object):
-    def __init__(self,serverIp,userName,passWd):
+    def __init__(self,serverIp,userName,passWd,port=22):
         self.__ip__         = serverIp
         self.__userName__   = userName
         self.__passWd__     = passWd
-        self.__port__       = 22
+        self.__port__       = port
         self.__ssh__        = paramiko.SSHClient()
         self.__ssh__.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
