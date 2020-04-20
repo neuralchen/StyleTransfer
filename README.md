@@ -18,6 +18,11 @@
 ```root_path```为远程主机的工程根目录
 ```scan_config```配置允许更新的文件后缀名
 
+### 系统路径配置
+在```env/config.json```中配置
+包括数据路径
+logs保存路径等
+
 ### 与训练相关的在./train_configs/*.yaml中
 - trainScriptName -- 训练用的脚本名称```yourname```，放置在./train_scripts/中，命名方式为train_[yourname].py，训练用的脚本可以自行创建参考已有训练脚本文件
 - gScriptName -- Generator的相关脚本文件名，放置在./components/中，可以自行创建修改该脚本文件需参考已有训练脚本文件
