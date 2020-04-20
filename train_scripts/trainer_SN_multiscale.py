@@ -5,7 +5,7 @@
 # Created Date: Monday April 6th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 1:02:39 am
+# Last Modified:  Monday, 20th April 2020 11:43:19 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -56,8 +56,6 @@ class Trainer(object):
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
         total_loader  = self.dataloaders
-        # style_loader  = self.dataloaders[0]
-        # content_loader= self.dataloaders[1]
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
