@@ -4,12 +4,12 @@
 程序入口 main.py，此脚本不需要修改
 参数设置分为两部分：
 
-### 与系统相关的在paramters.py中设置
+### 与系统相关的在main.py中的前部```getParameters()```函数中设置设置
 - mode -- 设置train finetune test模式
 - cuda -- 设置使用的GPU编号
 - version -- 为本次实验的名称，此名称在每次不同的实验一定要进行修改，起名尽量具有实际意义
 - experimentDescription -- 实验描述，描述本次实验的目的，以及记录一些必要的日志信息
-- dataloader_workers -- dataloader的进程数，进程数越多数据载入越快但是CPU负载更大，一般不要设置太高
+- dataloader_workers -- dataloader的进程数，进程数越多数据载入越快但是CPU负载更大，一般不要设置太高，请设为6
 - trainYaml -- 训练相关的配置文件，配置文件放置在./train_configs/中
 
 ### 与训练相关的在./train_configs/*.yaml中
