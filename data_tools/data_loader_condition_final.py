@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 7:23:13 pm
+# Last Modified:  Tuesday, 21st April 2020 9:46:45 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -38,7 +38,6 @@ class TotalDataset(data.Dataset):
         self.subffix            = subffix
         self.content_dataset    = []
         self.art_dataset        = []
-        # self.label      = [0 for i in range(len(selectedClasses))]
         self.random_seed= random_seed
         self.preprocess()
         self.num_images = len(self.content_dataset)

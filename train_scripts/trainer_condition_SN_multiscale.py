@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 7:24:49 pm
+# Last Modified:  Tuesday, 21st April 2020 9:45:52 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -52,12 +52,9 @@ class Trainer(object):
         # prep_weights= self.config["layersWeight"]
         feature_w   = self.config["featureWeight"]
         transform_w = self.config["transformWeight"]
-        # workers     = self.config["dataloader_workers"]
         dStep       = self.config["dStep"]
         gStep       = self.config["gStep"]
-        # style_loader  = self.dataloaders[0]
-        # content_loader= self.dataloaders[1]
-        total_loader  = self.dataloaders
+        total_loader= self.dataloaders
 
         if self.config["useTensorboard"]:
             from utilities.utilities import build_tensorboard
@@ -66,16 +63,16 @@ class Trainer(object):
         print("build models...")
 
         if self.config["mode"] == "train":
-            package  = __import__("components."+self.config["gScriptName"], fromlist=True)
-            GClass   = getattr(package, 'Generator')
-            package  = __import__("components."+self.config["dScriptName"], fromlist=True)
-            DClass   = getattr(package, 'Discriminator')
+            package = __import__("components."+self.config["gScriptName"], fromlist=True)
+            GClass  = getattr(package, 'Generator')
+            package = __import__("components."+self.config["dScriptName"], fromlist=True)
+            DClass  = getattr(package, 'Discriminator')
         elif self.config["mode"] == "finetune":
             print("finetune load scripts from %s"%self.config["com_base"])
             package = __import__(self.config["com_base"]+self.config["gScriptName"], fromlist=True)
             GClass  = getattr(package, 'Generator')
-            package  = __import__(self.config["com_base"]+self.config["dScriptName"], fromlist=True)
-            DClass   = getattr(package, 'Discriminator')
+            package = __import__(self.config["com_base"]+self.config["dScriptName"], fromlist=True)
+            DClass  = getattr(package, 'Discriminator')
 
         Gen     = GClass(self.config["GConvDim"], self.config["GKS"], self.config["resNum"])
         Dis     = DClass(self.config["DConvDim"], self.config["DKS"])
@@ -86,9 +83,9 @@ class Trainer(object):
         self.reporter.writeInfo("Discriminator structure:")
         self.reporter.writeModel(Dis.__str__())
         
-        Transform = Transform_block().cuda()
-        Gen     = Gen.cuda()
-        Dis     = Dis.cuda()
+        Transform   = Transform_block().cuda()
+        Gen         = Gen.cuda()
+        Dis         = Dis.cuda()
 
         if self.config["mode"] == "finetune":
             model_path = os.path.join(self.config["projectCheckpoints"], "%d_Generator.pth"%self.config["checkpointStep"])
@@ -120,12 +117,12 @@ class Trainer(object):
         
         # Data iterator
         print("prepare the dataloaders...")
-        total_iter    = iter(total_loader)
+        total_iter  = iter(total_loader)
         # style_iter      = iter(style_loader)
 
         print("prepare the fixed labels...")
-        fix_label       = [i for i in range(n_class)]
-        fix_label       = torch.tensor(fix_label).long().cuda()
+        fix_label   = [i for i in range(n_class)]
+        fix_label   = torch.tensor(fix_label).long().cuda()
         # fix_label       = fix_label.view(n_class,1)
         # fix_label       = torch.zeros(n_class, n_class).cuda().scatter_(1, fix_label, 1)
 

@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 7:26:42 pm
+# Last Modified:  Wednesday, 22nd April 2020 12:12:28 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -47,6 +47,7 @@ def getParameters():
     parser.add_argument('--specifiedTestImages', nargs='+', help='selected images for validation', 
             # '000121.jpg','000124.jpg','000129.jpg','000132.jpg','000135.jpg','001210.jpg','001316.jpg', 
             default=[183947])
+    parser.add_argument('--testClasses', type=int, default=3)        
     return parser.parse_args()
 
 def create_dirs(sys_state):
@@ -197,7 +198,6 @@ if __name__ == '__main__':
         # Read model_config.json
         json_obj    = read_config(config_json)
         for item in json_obj.items():
-            # sys_state[item[0]] = item[1]
             if item[0] in ignoreKey:
                 pass
             else:
