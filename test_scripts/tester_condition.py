@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Wednesday, 22nd April 2020 12:11:44 pm
+# Last Modified:  Thursday, 23rd April 2020 11:10:02 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -39,6 +39,7 @@ class Tester(object):
         save_dir    = self.config["testSamples"]
         batch_size  = self.config["batchSize"]
         n_class     = len(self.config["selectedStyleDir"])
+        print("%d classes"%n_class)
         # data
         
         # SpecifiedImages = None
@@ -56,20 +57,30 @@ class Tester(object):
             Gen = Gen.cuda()
         Gen.load_state_dict(torch.load(self.config["ckp_name"]))
         print('loaded trained models {}...!'.format(self.config["ckp_name"]))
-        condition_labels = 
+        condition_labels = torch.ones((n_class, batch_size, 1)).long()
+        for i in range(n_class):
+            condition_labels[i,:,:] = condition_labels[i,:,:]*i
+        if self.config["cuda"] >=0:
+            condition_labels = condition_labels.cuda()
 
 
         start_time = time.time()
         Gen.eval()
         with torch.no_grad():
-            for iii in tqdm(range(total//batch_size)):
+            for _ in tqdm(range(total//batch_size)):
                 content,img_name = test_data()
-                if self.config["cuda"] >=0:
-                    content = content.cuda()       
-                res,_ = Gen(content)
-                print("Save test data")
-                save_image(denorm(res.data),
-                            os.path.join(save_dir, '{}_step{}_v_{}.png'.format(img_name,self.config["checkpointStep"],self.config["version"])),nrow=batch_size)#,nrow=self.batch_size)
+                final_res = None
+                for i in range(n_class):
+                    if self.config["cuda"] >=0:
+                        content = content.cuda()
+                    res,_ = Gen(content, condition_labels[i,0,:])
+                    print("Save test data")
+                    if i ==0:
+                        final_res = res
+                    else:
+                        final_res = torch.cat([final_res,res],0)
+                save_image(denorm(final_res.data),
+                            os.path.join(save_dir, '{}_step{}_v_{}.png'.format(img_name,self.config["checkpointStep"],self.config["version"])),nrow=n_class)#,nrow=self.batch_size)
         elapsed = time.time() - start_time
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Elapsed [{}]".format(elapsed))
