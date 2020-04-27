@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 16th April 2020 12:55:52 pm
+# Last Modified:  Friday, 24th April 2020 12:13:01 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -15,6 +15,7 @@ import os
 import time
 import datetime
 import functools
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -65,6 +66,8 @@ class Tester(object):
                     content = content.cuda()       
                 res,_ = Gen(content)
                 print("Save test data")
+                tensordata = res[0,:,:,:].data.cpu().numpy()
+                np.savez(os.path.join(save_dir, '{}_step{}_v_{}.npz'.format(img_name,self.config["checkpointStep"],self.config["version"])),tensordata)
                 save_image(denorm(res.data),
                             os.path.join(save_dir, '{}_step{}_v_{}.png'.format(img_name,self.config["checkpointStep"],self.config["version"])),nrow=batch_size)#,nrow=self.batch_size)
         elapsed = time.time() - start_time

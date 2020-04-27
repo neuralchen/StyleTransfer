@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 23rd April 2020 10:51:43 am
+# Last Modified:  Friday, 24th April 2020 12:09:22 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -31,14 +31,14 @@ def getParameters():
     parser.add_argument('--mode', type=str, default="test", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=6)
-    parser.add_argument('--checkpoint', type=int, default=322000)
+    parser.add_argument('--checkpoint', type=int, default=278000)
     # training
-    parser.add_argument('--version', type=str, default='condition1')
+    parser.add_argument('--version', type=str, default='SN-FC512_ms_4')
     parser.add_argument('--experimentDescription', type=str, default="test if we can reduce the resblock number")
     parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
     # test
-    parser.add_argument('--testScriptsName', type=str, default='condition')
-    parser.add_argument('--nodeName', type=str, default='localhost',choices=['localhost', '4card', '8card','lyh','loc','localhost'])
+    parser.add_argument('--testScriptsName', type=str, default='common')
+    parser.add_argument('--nodeName', type=str, default='4card',choices=['localhost', '4card', '8card','lyh','loc','localhost'])
     parser.add_argument('--testBatchSize', type=int, default=1)
     parser.add_argument('--totalImg', type=int, default=20)
     parser.add_argument('--saveTestImg', type=str2bool, default=True)
