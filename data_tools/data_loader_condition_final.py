@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 27th April 2020 8:16:51 pm
+# Last Modified:  Monday, 27th April 2020 8:23:58 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -166,8 +166,8 @@ def getLoader(s_image_dir,c_image_dir,
                         , c_transforms,s_transforms)
     content_data_loader = data.DataLoader(dataset=content_dataset,batch_size=batch_size,
                     drop_last=True,shuffle=True,num_workers=num_workers,pin_memory=True)
-
-    return content_data_loader
+    prefetcher = data_prefetcher(content_data_loader)
+    return prefetcher
 
 def denorm(x):
     out = (x + 1) / 2

@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 27th April 2020 8:17:50 pm
+# Last Modified:  Monday, 27th April 2020 8:24:58 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -119,7 +119,7 @@ class Trainer(object):
         # Data iterator
         print("prepare the dataloaders...")
         # total_iter  = iter(total_loader)
-        prefetcher = data_prefetcher(total_loader)
+        # prefetcher = data_prefetcher(total_loader)
     # input, target = prefetcher.next()
         # style_iter      = iter(style_loader)
 
@@ -142,7 +142,7 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                start_time = time.time()
+                # start_time = time.time()
                 # try:
                 #     # content_images      = next(content_iter)
                 #     # style_images,label  = next(style_iter)
@@ -155,14 +155,14 @@ class Trainer(object):
                 #     total_iter    = iter(total_loader)
                 #     content_images,style_images,label  = next(total_iter) 
                 # label           = label.view(batch_size,1)
-                content_images,style_images,label  = prefetcher.next()
+                content_images,style_images,label  = total_loader.next()
                 label           = label.long()
                 # style_images    = style_images.cuda()
                 # content_images  = content_images.cuda()
                 # label           = label.cuda()
-                elapsed = time.time() - start_time
-                elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("data load time %s"%elapsed)
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("data load time %s"%elapsed)
                 
                 start_time = time.time()
                 d_out = Dis(style_images,label)
@@ -211,7 +211,7 @@ class Trainer(object):
                 #     # content_images      = next(content_iter)
                 #     total_iter    = iter(total_loader)
                 #     content_images,_,_  = next(total_iter) 
-                content_images,_,_  = prefetcher.next()
+                content_images,_,_  = total_loader.next()
                 # content_images  = content_images.cuda()
                 # label     = label.view(batch_size,1)
                 # style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
