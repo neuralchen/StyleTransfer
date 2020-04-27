@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 21st April 2020 9:45:52 am
+# Last Modified:  Monday, 27th April 2020 8:17:50 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -22,7 +22,8 @@ from    torch.autograd     import Variable
 from    torchvision.utils  import save_image
 from    functools import partial
 
-from    data_tools.data_loader_condition import getLoader
+# from    data_tools.data_loader_condition import getLoader
+from    data_tools.data_loader_condition_final import data_prefetcher
 from    components.Transform import Transform_block
 from    utilities.utilities import denorm
 
@@ -117,7 +118,9 @@ class Trainer(object):
         
         # Data iterator
         print("prepare the dataloaders...")
-        total_iter  = iter(total_loader)
+        # total_iter  = iter(total_loader)
+        prefetcher = data_prefetcher(total_loader)
+    # input, target = prefetcher.next()
         # style_iter      = iter(style_loader)
 
         print("prepare the fixed labels...")
@@ -139,28 +142,29 @@ class Trainer(object):
             # ================== Train D ================== #
             # Compute loss with real images
             for _ in range(dStep):
-                # start_time = time.time()
-                try:
-                    # content_images      = next(content_iter)
-                    # style_images,label  = next(style_iter)
-                    content_images,style_images,label  = next(total_iter) 
-                except:
-                    # style_iter          = iter(style_loader)
-                    # content_iter        = iter(content_loader)
-                    # style_images,label  = next(style_iter)
-                    # content_images      = next(content_iter)
-                    total_iter    = iter(total_loader)
-                    content_images,style_images,label  = next(total_iter) 
+                start_time = time.time()
+                # try:
+                #     # content_images      = next(content_iter)
+                #     # style_images,label  = next(style_iter)
+                #     content_images,style_images,label  = next(total_iter) 
+                # except:
+                #     # style_iter          = iter(style_loader)
+                #     # content_iter        = iter(content_loader)
+                #     # style_images,label  = next(style_iter)
+                #     # content_images      = next(content_iter)
+                #     total_iter    = iter(total_loader)
+                #     content_images,style_images,label  = next(total_iter) 
                 # label           = label.view(batch_size,1)
+                content_images,style_images,label  = prefetcher.next()
                 label           = label.long()
-                style_images    = style_images.cuda()
-                content_images  = content_images.cuda()
-                label           = label.cuda()
-                # elapsed = time.time() - start_time
-                # elapsed = str(datetime.timedelta(seconds=elapsed))
-                # print("data load time %s"%elapsed)
+                # style_images    = style_images.cuda()
+                # content_images  = content_images.cuda()
+                # label           = label.cuda()
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("data load time %s"%elapsed)
                 
-                # start_time = time.time()
+                start_time = time.time()
                 d_out = Dis(style_images,label)
                 d_loss_real = 0
                 for i in range(output_size):
@@ -190,25 +194,25 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-                # elapsed = time.time() - start_time
-                # elapsed = str(datetime.timedelta(seconds=elapsed))
-                # print("inference time %s"%elapsed)
+                elapsed = time.time() - start_time
+                elapsed = str(datetime.timedelta(seconds=elapsed))
+                print("inference time %s"%elapsed)
             
             # ================== Train G ================== #
             for _ in range(gStep):
-                try:
-                    # content_images      = next(content_iter)
-                    # style_images,label  = next(style_iter)
-                    content_images,_,_  = next(total_iter) 
-                except:
-                    # style_iter          = iter(style_loader)
-                    # content_iter        = iter(content_loader)
-                    # style_images,label  = next(style_iter)
-                    # content_images      = next(content_iter)
-                    total_iter    = iter(total_loader)
-                    content_images,_,_  = next(total_iter) 
-                    
-                content_images  = content_images.cuda()
+                # try:
+                #     # content_images      = next(content_iter)
+                #     # style_images,label  = next(style_iter)
+                #     content_images,_,_  = next(total_iter) 
+                # except:
+                #     # style_iter          = iter(style_loader)
+                #     # content_iter        = iter(content_loader)
+                #     # style_images,label  = next(style_iter)
+                #     # content_images      = next(content_iter)
+                #     total_iter    = iter(total_loader)
+                #     content_images,_,_  = next(total_iter) 
+                content_images,_,_  = prefetcher.next()
+                # content_images  = content_images.cuda()
                 # label     = label.view(batch_size,1)
                 # style_labels = torch.zeros(batch_size, n_class).cuda().scatter_(1, label, 1)
                 # fake_image,real_feature = Gen(content_images,style_labels)

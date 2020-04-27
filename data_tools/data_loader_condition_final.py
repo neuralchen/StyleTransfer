@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 21st April 2020 9:46:45 am
+# Last Modified:  Monday, 27th April 2020 8:16:51 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -20,6 +20,43 @@ import torchvision.datasets as dsets
 from torchvision import transforms as T
 from data_tools.StyleResize import StyleResize
 # from StyleResize import StyleResize
+
+class data_prefetcher():
+    def __init__(self, loader):
+        self.loader = iter(loader)
+        self.stream = torch.cuda.Stream()
+        # self.mean = torch.tensor([0.485 * 255, 0.456 * 255, 0.406 * 255]).cuda().view(1,3,1,1)
+        # self.std = torch.tensor([0.229 * 255, 0.224 * 255, 0.225 * 255]).cuda().view(1,3,1,1)
+        # With Amp, it isn't necessary to manually convert data to half.
+        # if args.fp16:
+        #     self.mean = self.mean.half()
+        #     self.std = self.std.half()
+        self.preload()
+
+    def preload(self):
+        try:
+            self.content, self.style, self.label = next(self.loader)
+        except StopIteration:
+            iter(self.loader)
+            self.content, self.style, self.label = next(self.loader)
+            
+        with torch.cuda.stream(self.stream):
+            self.content= self.content.cuda(non_blocking=True)
+            self.style  = self.style.cuda(non_blocking=True)
+            self.label  = self.label.cuda(non_blocking=True)
+            # With Amp, it isn't necessary to manually convert data to half.
+            # if args.fp16:
+            #     self.next_input = self.next_input.half()
+            # else:
+            # self.next_input = self.next_input.float()
+            # self.next_input = self.next_input.sub_(self.mean).div_(self.std)
+    def next(self):
+        torch.cuda.current_stream().wait_stream(self.stream)
+        content = self.content
+        style   = self.style
+        label   = self.label 
+        self.preload()
+        return content, style, label
 
 class TotalDataset(data.Dataset):
     """Dataset class for the Artworks dataset and content dataset."""
@@ -92,7 +129,8 @@ def getLoader(s_image_dir,c_image_dir,
     s_transforms = []
     c_transforms = []
     
-    s_transforms.append(StyleResize())
+    # s_transforms.append(StyleResize())
+    s_transforms.append(T.Resize(900))
     c_transforms.append(T.Resize(900))
 
     s_transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
