@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 27th April 2020 8:24:58 pm
+# Last Modified:  Monday, 27th April 2020 11:11:28 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -22,8 +22,6 @@ from    torch.autograd     import Variable
 from    torchvision.utils  import save_image
 from    functools import partial
 
-# from    data_tools.data_loader_condition import getLoader
-from    data_tools.data_loader_condition_final import data_prefetcher
 from    components.Transform import Transform_block
 from    utilities.utilities import denorm
 
@@ -120,7 +118,7 @@ class Trainer(object):
         print("prepare the dataloaders...")
         # total_iter  = iter(total_loader)
         # prefetcher = data_prefetcher(total_loader)
-    # input, target = prefetcher.next()
+        # input, target = prefetcher.next()
         # style_iter      = iter(style_loader)
 
         print("prepare the fixed labels...")
@@ -164,7 +162,7 @@ class Trainer(object):
                 # elapsed = str(datetime.timedelta(seconds=elapsed))
                 # print("data load time %s"%elapsed)
                 
-                start_time = time.time()
+                # start_time = time.time()
                 d_out = Dis(style_images,label)
                 d_loss_real = 0
                 for i in range(output_size):
@@ -194,9 +192,9 @@ class Trainer(object):
                 d_optimizer.zero_grad()
                 d_loss.backward()
                 d_optimizer.step()
-                elapsed = time.time() - start_time
-                elapsed = str(datetime.timedelta(seconds=elapsed))
-                print("inference time %s"%elapsed)
+                # elapsed = time.time() - start_time
+                # elapsed = str(datetime.timedelta(seconds=elapsed))
+                # print("inference time %s"%elapsed)
             
             # ================== Train G ================== #
             for _ in range(gStep):

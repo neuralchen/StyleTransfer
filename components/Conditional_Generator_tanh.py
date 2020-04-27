@@ -5,7 +5,7 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 20th April 2020 6:56:45 pm
+# Last Modified:  Monday, 27th April 2020 11:15:07 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -38,23 +38,28 @@ class Generator(nn.Module):
             # nn.ReflectionPad2d(padding_size),
             nn.Conv2d(in_channels = 3 , out_channels = chn , kernel_size= k_size, bias= False),
             nn.InstanceNorm2d(chn, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             # nn.ReflectionPad2d(padding_size),
             nn.Conv2d(in_channels = chn , out_channels = chn*2, kernel_size= k_size, stride=2, bias =False), # 
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             # nn.ReflectionPad2d(padding_size),
             nn.Conv2d(in_channels = chn*2, out_channels = chn * 4, kernel_size= k_size, stride=2, bias =False),
             nn.InstanceNorm2d(chn * 4, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             # nn.ReflectionPad2d(padding_size),
             nn.Conv2d(in_channels = chn*4  , out_channels = chn * 8, kernel_size= k_size, stride=2, bias =False),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             # # nn.ReflectionPad2d(padding_size),
             nn.Conv2d(in_channels = chn * 8, out_channels = chn * 8, kernel_size= k_size, stride=2, bias =False),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
         )
         res_size = chn * 8
         for _ in range(res_num-1):
@@ -64,16 +69,20 @@ class Generator(nn.Module):
         self.decoder = nn.Sequential(
             DeConv(in_channels = chn * 8, out_channels = chn * 8, kernel_size= k_size),
             nn.InstanceNorm2d(chn * 8, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             DeConv(in_channels = chn * 8, out_channels = chn *4, kernel_size= k_size),
             nn.InstanceNorm2d(chn *4, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             DeConv(in_channels = chn * 4, out_channels = chn * 2 , kernel_size= k_size),
             nn.InstanceNorm2d(chn*2, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             DeConv(in_channels = chn * 2, out_channels = chn, kernel_size= k_size),
             nn.InstanceNorm2d(chn, affine=True, momentum=0),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.LeakyReLU(),
             nn.ReflectionPad2d(3),
             nn.Conv2d(in_channels = chn, out_channels = 3, kernel_size= 7),
             nn.Tanh()

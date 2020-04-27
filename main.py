@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 27th April 2020 8:19:11 pm
+# Last Modified:  Monday, 27th April 2020 11:19:48 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -34,7 +34,7 @@ def getParameters():
     parser.add_argument('--checkpoint', type=int, default=278000)
     # training
     parser.add_argument('--version', type=str, default='condition2')
-    parser.add_argument('--experimentDescription', type=str, default="test if we can reduce the resblock number")
+    parser.add_argument('--experimentDescription', type=str, default="将生成器中的激活函数替换为leakyrelu, 尝试解决饱和失真问题")
     parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
     # test
     parser.add_argument('--testScriptsName', type=str, default='common')
