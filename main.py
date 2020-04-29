@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 28th April 2020 10:19:38 am
+# Last Modified:  Tuesday, 28th April 2020 10:58:26 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -31,7 +31,7 @@ def getParameters():
     parser.add_argument('--mode', type=str, default="finetune", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=6)
-    parser.add_argument('--checkpoint', type=int, default=12000)
+    parser.add_argument('--checkpoint', type=int, default=74000)
     # training
     parser.add_argument('--version', type=str, default='condition2')
     parser.add_argument('--experimentDescription', type=str, default="将生成器中的激活函数替换为leakyrelu, 尝试解决饱和失真问题")

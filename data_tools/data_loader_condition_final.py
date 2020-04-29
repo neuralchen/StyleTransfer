@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 28th April 2020 10:18:00 am
+# Last Modified:  Tuesday, 28th April 2020 10:42:50 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -130,8 +130,8 @@ def getLoader(s_image_dir,c_image_dir,
     s_transforms = []
     c_transforms = []
     
-    # s_transforms.append(StyleResize())
-    s_transforms.append(T.Resize(900))
+    s_transforms.append(StyleResize())
+    # s_transforms.append(T.Resize(900))
     c_transforms.append(T.Resize(900))
 
     s_transforms.append(T.RandomCrop(crop_size,pad_if_needed=True,padding_mode='reflect'))
