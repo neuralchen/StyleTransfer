@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 8th May 2020 11:43:16 pm
+# Last Modified:  Friday, 8th May 2020 11:47:48 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -19,18 +19,6 @@ import tkinter as tk
 from pathlib import Path
 from utilities.sshupload import fileUploaderClass
 from utilities.json_config import read_config,write_config
-
-ssh_ip = "192.168.101.57"
-ssh_username = "gdp"
-ssh_passwd = "glass123456"
-ssh_port = 22
-root_path = "/home/gdp/CXH/StyleTransfer"
-
-scan_config={
-    "white_list":["py","yaml"],
-    # "ignore_dir":["test_logs","train_logs",".vscode"],
-    # "ignore_file":[".gitignore","LICENSE","README.md","*.jpg","*.png","*.JPG","*.JPEG","*.PNG","*.pyc"],
-}
 
 class Application(tk.Frame):
     def __init__(self, master=None):
