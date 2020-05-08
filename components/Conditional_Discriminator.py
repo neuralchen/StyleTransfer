@@ -12,7 +12,7 @@ class Discriminator(nn.Module):
         # padding_size = int((k_size -1)/2)
         slop         = 0.2
         enable_bias  = True
-
+        
         # stage 1
         self.block1 = nn.Sequential(
             utils.spectral_norm(nn.Conv2d(in_channels = 3 , out_channels = chn , kernel_size= k_size, stride = 2, bias= enable_bias)),

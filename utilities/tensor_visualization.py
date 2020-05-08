@@ -5,7 +5,7 @@
 # Created Date: Thursday April 23rd 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 24th April 2020 12:19:36 am
+# Last Modified:  Friday, 8th May 2020 10:50:31 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -19,7 +19,6 @@ img_tensor = np.load("D:\\PatchFace\\PleaseWork\\multi-style-gan\\StyleTransfer\
 img_tensor = img_tensor['arr_0']
 
 # print img.shape
-
 def on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         xy = "[%d,%d]-value[%f,%f,%f]"%(x,y,img_tensor[0,y,x],img_tensor[1,y,x],img_tensor[2,y,x])

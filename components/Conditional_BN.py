@@ -10,7 +10,7 @@ class Conditional_BN(nn.Module):
         self.embed = nn.Linear(n_condition, in_channel* 2)
         self.embed.weight.data[:, :in_channel] = 1
         self.embed.weight.data[:, in_channel:] = 0
-
+        
     def forward(self, input, class_id):
         out = self.bn(input)
         embed = self.embed(class_id)

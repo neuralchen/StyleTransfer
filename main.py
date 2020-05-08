@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Tuesday, 28th April 2020 10:58:26 pm
+# Last Modified:  Friday, 8th May 2020 10:46:21 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -31,13 +31,13 @@ def getParameters():
     parser.add_argument('--mode', type=str, default="finetune", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=6)
-    parser.add_argument('--checkpoint', type=int, default=74000)
+    parser.add_argument('--checkpoint', type=int, default=336000)
     # training
     parser.add_argument('--version', type=str, default='condition2')
     parser.add_argument('--experimentDescription', type=str, default="将生成器中的激活函数替换为leakyrelu, 尝试解决饱和失真问题")
     parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
     # test
-    parser.add_argument('--testScriptsName', type=str, default='common')
+    parser.add_argument('--testScriptName', type=str, default='common')
     parser.add_argument('--nodeName', type=str, default='4card',choices=['localhost', '4card', '8card','lyh','loc','localhost'])
     parser.add_argument('--testBatchSize', type=int, default=1)
     parser.add_argument('--totalImg', type=int, default=20)
@@ -228,7 +228,7 @@ if __name__ == '__main__':
                 print("%s file exists"%("%d_Generator.pth"%sys_state["checkpointStep"]))
         sys_state["ckp_name"]       = os.path.join(sys_state["projectCheckpoints"], "%d_Generator.pth"%sys_state["checkpointStep"])    
         # Get the test configurations
-        sys_state["testScriptsName"]= config.testScriptsName
+        sys_state["testScriptName"]= config.testScriptName
         sys_state["batchSize"]      = config.testBatchSize
         sys_state["totalImg"]       = config.totalImg
         sys_state["saveTestImg"]    = config.saveTestImg
@@ -236,10 +236,10 @@ if __name__ == '__main__':
         reporter = Reporter(sys_state["reporterPath"])
         
         # Display the test information
-        moduleName  = "test_scripts.tester_" + sys_state["testScriptsName"]
+        moduleName  = "test_scripts.tester_" + sys_state["testScriptName"]
         print("Start to run test script: {}".format(moduleName))
         print("Test version: %s"%sys_state["version"])
-        print("Test Script Name: %s"%sys_state["testScriptsName"])
+        print("Test Script Name: %s"%sys_state["testScriptName"])
         print("Generator Script Name: %s"%sys_state["gScriptName"])
         # print("Discriminator Script Name: %s"%sys_state["stuScriptName"])
         print("Image Crop Size: %d"%sys_state["imCropSize"])

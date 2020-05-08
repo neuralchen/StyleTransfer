@@ -5,11 +5,10 @@
 # Created Date: Saturday April 18th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Monday, 27th April 2020 11:11:28 pm
+# Last Modified:  Friday, 8th May 2020 10:49:54 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
-
 
 import  os
 import  time
@@ -250,17 +249,27 @@ class Trainer(object):
                     tensorboard_writer.add_scalar('data/g_transform_loss', g_transform_loss, (step + 1))
 
             # Sample images
+            # if (step +1 ) % sample_freq == 0:
             if (step + 1) % sample_freq == 0:
                 print('Sample images {}_fake.jpg'.format(step + 1))
                 Gen.eval()
                 with torch.no_grad():
-                    
-                    fake_images,_ = Gen(content_images[:n_class,:,:,:], fix_label)
-                    saved_image1 = torch.cat([denorm(content_images[:n_class,:,:,:]),denorm(fake_images.data)],3)
-                    # saved_image2 = torch.cat([denorm(style_images),denorm(fake_images.data)],3)
-                    # wocao        = torch.cat([saved_image1,saved_image2],2)
-                    save_image(saved_image1,
-                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=3)
+                    for batch_item in range(batch_size):
+                        for class_item in range(n_class):
+                            fake_images,_ = Gen(content_images[[batch_item],:,:,:], fix_label[:,class_item])
+                            if class_item == 0:
+                                oneimg_res = torch.cat([denorm(content_images[[batch_item],:,:,:]),denorm(fake_images.data)],3)
+                            else:
+                                oneimg_res = torch.cat([oneimg_res,denorm(fake_images.data)],3)
+                        if batch_item == 0:
+                            batch_image = oneimg_res
+                        else:
+                            batch_image = torch.cat([batch_image,oneimg_res],2)
+                    save_image(batch_image,
+                            os.path.join(sample_dir, '{}_fake.jpg'.format(step + 1)),nrow=1)
+                    del batch_image
+                    del oneimg_res
+                    del fake_images
                 # print("Transfer validation images")
                 # num = 1
                 # for val_img in self.validation_data:

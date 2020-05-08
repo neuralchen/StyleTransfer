@@ -5,14 +5,13 @@
 # Created Date: Thursday April 23rd 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 23rd April 2020 11:52:19 pm
+# Last Modified:  Friday, 8th May 2020 10:50:24 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
 
 
 import cv2
-
 
 def mouse(event, x, y, flags, param):
     global flag, x1, y1, x2, y2, wx, wy, move_w, move_h, dst

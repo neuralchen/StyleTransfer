@@ -13,7 +13,7 @@ class Adain(nn.Module):
         # self.embed.weight.data[:, in_channel:] = 0
         nn.init.xavier_uniform_(self.embed1.weight)
         nn.init.xavier_uniform_(self.embed2.weight)
-
+        
     def forward(self, input, class_id):
         out     = self.instance_norm(input)
         sigma   = self.embed1(class_id)

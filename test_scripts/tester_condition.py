@@ -5,7 +5,7 @@
 # Created Date: Friday November 8th 2019
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Thursday, 23rd April 2020 11:10:02 am
+# Last Modified:  Friday, 8th May 2020 10:49:30 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -74,7 +74,6 @@ class Tester(object):
                     if self.config["cuda"] >=0:
                         content = content.cuda()
                     res,_ = Gen(content, condition_labels[i,0,:])
-                    print("Save test data")
                     if i ==0:
                         final_res = res
                     else:
