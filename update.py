@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 8th May 2020 11:47:48 pm
+# Last Modified:  Friday, 8th May 2020 11:53:09 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -48,8 +48,34 @@ class Application(tk.Frame):
         self.master.iconbitmap('./update.ico')
         width,height=self.master.maxsize()
         self.master.geometry("{}x{}".format(600, height//2))
+
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
         # self.master.resizable(0,0)
-       
+    def on_closing(self):
+        ssh_ip = self.ip_str.get()
+        ssh_username = self.username_str.get()
+        ssh_passwd = self.passwd_str.get()
+        ssh_port = int(self.port_str.get())
+        root_path = self.remote_path_str.get()
+        white_temp = self.white_str.get()
+        white_temp = white_temp.split(";")
+        wocao = []
+        for item in white_temp:
+            if item !="":
+                wocao.append(item)
+        save_history = {
+            "remote_ip":ssh_ip,
+            "remote_user":ssh_username,
+            "remote_port":ssh_port,
+            "remote_passwd":ssh_passwd,
+            "remote_path":root_path,
+            "white_list":wocao,
+            "log_path":self.log_path,
+            "logfilename":self.logfilename
+        }
+        write_config("./synchronize_log.json",save_history)
+        self.master.destroy()
+
     def createWidgets(self):
         font_list = (self.font_name,self.font_size)
         i = 0
