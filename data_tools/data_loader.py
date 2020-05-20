@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Saturday, 18th April 2020 3:28:52 pm
+# Last Modified:  Monday, 18th May 2020 12:53:06 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -18,8 +18,8 @@ import torch
 import os
 import random
 from pathlib import Path
-# from data_tools.StyleResize import StyleResize
-from StyleResize import StyleResize
+from data_tools.StyleResize import StyleResize
+# from StyleResize import StyleResize
 
 class ArtDataset(data.Dataset):
     """Dataset class for the Artworks dataset."""

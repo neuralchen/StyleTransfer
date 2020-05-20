@@ -5,7 +5,7 @@
         "systemLog":"./system/system_log.log",
         "datasetPath":{
             "Place365_big":"D:\\Downloads\\data_large",
-            "WikiArt":"D:\\F_Disk\\data_set\\Art_Data\\data_art"
+            "WikiArt":"D:\\F_Disk\\data_set\\Art_Data\\data_art_backup"
         },
         "trainConfigPath":"./train_configs",
         "trainScriptsPath":"./train_scripts",

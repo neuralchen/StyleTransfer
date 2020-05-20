@@ -5,7 +5,7 @@
 # Created Date: 2020.4.26
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 8th May 2020 10:46:21 pm
+# Last Modified:  Wednesday, 20th May 2020 12:45:41 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2019 Shanghai Jiao Tong University
 #############################################################
@@ -31,11 +31,11 @@ def getParameters():
     parser.add_argument('--mode', type=str, default="finetune", choices=['train', 'finetune','test','debug'])
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--dataloader_workers', type=int, default=6)
-    parser.add_argument('--checkpoint', type=int, default=336000)
+    parser.add_argument('--checkpoint', type=int, default=149400)
     # training
-    parser.add_argument('--version', type=str, default='condition2')
-    parser.add_argument('--experimentDescription', type=str, default="将生成器中的激活函数替换为leakyrelu, 尝试解决饱和失真问题")
-    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_256_conditional_multiscale.yaml")
+    parser.add_argument('--version', type=str, default='singlescale_condition1')
+    parser.add_argument('--experimentDescription', type=str, default="single scale的判别器的对照试验")
+    parser.add_argument('--trainYaml', type=str, default="train_SN_FC_conditional_singlescale.yaml")
     # test
     parser.add_argument('--testScriptName', type=str, default='common')
     parser.add_argument('--nodeName', type=str, default='4card',choices=['localhost', '4card', '8card','lyh','loc','localhost'])

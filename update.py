@@ -5,7 +5,7 @@
 # Created Date: Wednesday February 26th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 8th May 2020 11:53:09 pm
+# Last Modified:  Friday, 8th May 2020 11:54:24 pm
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -39,8 +39,6 @@ class Application(tk.Frame):
         self.logfile_path = self.log_path + config["logfilename"]
         self.window_init()
         self.createWidgets()
-        
-
     
     def window_init(self):
         self.master.title('File Synchronize')
@@ -199,17 +197,6 @@ class Application(tk.Frame):
             # print("here %s"%item)
             remotefile = Path(root_path,item).as_posix()
             remotemachine.sshScpPut(localfile,remotefile)
-        # save_history = {
-        #     "remote_ip":ssh_ip,
-        #     "remote_user":ssh_username,
-        #     "remote_port":ssh_port,
-        #     "remote_passwd":ssh_passwd,
-        #     "remote_path":root_path,
-        #     "white_list":["py","yaml"],
-        #     "log_path":self.log_path,
-        #     "logfilename":self.logfilename
-        # }
-        # write_config("./synchronize_log1.json",save_history)
 
 class TextRedirector(object):
     def __init__(self, widget, tag="stdout"):

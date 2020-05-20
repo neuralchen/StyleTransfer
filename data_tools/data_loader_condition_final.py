@@ -5,7 +5,7 @@
 # Created Date: Saturday April 4th 2020
 # Author: Chen Xuanhong
 # Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 8th May 2020 10:49:15 pm
+# Last Modified:  Monday, 18th May 2020 12:50:03 am
 # Modified By: Chen Xuanhong
 # Copyright (c) 2020 Shanghai Jiao Tong University
 #############################################################
@@ -87,12 +87,12 @@ class TotalDataset(data.Dataset):
         for dir_item in self.selectedContent:
             join_path = Path(self.content_image_dir,dir_item)#.replace('/','_'))
             if join_path.exists():
-                print("processing %s"%dir_item,end='\r')
+                print("processing %s"%dir_item)
                 images = join_path.glob('*.%s'%(self.subffix))
                 for item in images:
                     self.content_dataset.append(item)
             else:
-                print("%s dir does not exist!"%dir_item,end='\r')
+                print("%s dir does not exist!"%dir_item)
         label_index = 0
         print("processing style images...")
         for class_item in self.selectedStyle:

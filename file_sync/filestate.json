@@ -31,7 +31,7 @@
     "train_scripts\\trainer_SN1.py": 1587186395.6704772,
     "components\\Discriminator_MultiScale1.py": 1586712687.1286616,
     "train_scripts\\trainer_GP.py": 1586953846.9632106,
-    "update.py": 1588953189.5324616,
+    "update.py": 1588953265.2903252,
     "train_configs\\train_multiscale.yaml": 1586712890.6856644,
     "train_configs\\train_singlescale.yaml": 1586578834.5137618,
     "train_configs\\train_SN.yaml": 1586628192.3729146,
